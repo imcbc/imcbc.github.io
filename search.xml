@@ -3,8 +3,8 @@
   <entry>
     <title>AirProbe</title>
     <url>/2022/04/09/airprobe/</url>
-    <content><![CDATA[<div style="width:60%;margin:auto"><img src="/2022/04/09/airprobe/ap.JPG" class="" title="AirProbe">
-测量PM2.5浓度、二氧化碳浓度、温度、湿度
+    <content><![CDATA[<p>测量PM2.5浓度、二氧化碳浓度、温度、湿度</p>
+<div style="width:40%;margin:auto"><img src="/2022/04/09/airprobe/ap.JPG" class="" title="AirProbe"></div>
 <span id="more"></span>
 
 <h1 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h1><ul>
@@ -28,14 +28,15 @@
 <li>CO2       SCD30</li>
 </ul>
 <hr>
-<h1 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h1><div style="width:100%;margin:auto"><img src="/2022/04/09/airprobe/ap5.JPG" class="" title="外壳设计">
-<div style="width:100%;margin:auto"><img src="/2022/04/09/airprobe/ap2.JPG" class="" title="组装前">
-<div style="width:100%;margin:auto"><img src="/2022/04/09/airprobe/ap3.JPG" class="" title="侧视图">
-<div style="width:100%;margin:auto"><img src="/2022/04/09/airprobe/ap4.JPG" class="" title="组装后">
-<div style="width:100%;margin:auto"><img src="/2022/04/09/airprobe/ap1.JPG" class="" title="安装后">
+<h1 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h1><div style="width:70%;margin:auto"><img src="/2022/04/09/airprobe/ap5.JPG" class="" title="外壳设计"></div>
+<div style="width:70%;margin:auto"><img src="/2022/04/09/airprobe/ap2.JPG" class="" title="组装前"></div>
+<div style="width:70%;margin:auto"><img src="/2022/04/09/airprobe/ap3.JPG" class="" title="侧视图"></div>
+<div style="width:70%;margin:auto"><img src="/2022/04/09/airprobe/ap4.JPG" class="" title="组装后"></div>
+<div style="width:70%;margin:auto"><img src="/2022/04/09/airprobe/ap1.JPG" class="" title="安装后"></div>
 
 <hr>
 <h1 id="项目地址"><a href="#项目地址" class="headerlink" title="项目地址"></a>项目地址</h1><p><a href="https://github.com/imcbc/airprobe">AirProbe</a></p>
+<hr>
 ]]></content>
       <categories>
         <category>DIY</category>
@@ -56,7 +57,7 @@
 <hr>
 <h1 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h1><ul>
 <li>编译可执行的Pi Pico可执行文件， 假设文件位置为当前位置，文件名为testcode.elf</li>
-<li>JLink(v9)一套， 接口如图，需要连接SWDIO， SWCLK， VTref和GND  <div style="width:30%;margin:auto"><img src="/2022/04/09/pipico-swd/jlink_swd.JPG" class="" title="JLink-SWD接口"></li>
+<li>JLink(v9)一套， 接口如图，需要连接SWDIO， SWCLK， VTref和GND  <div style="width:30%;margin:auto"><img src="/2022/04/09/pipico-swd/jlink_swd.JPG" class="" title="JLink-SWD接口"></div></li>
 </ul>
 <hr>
 <h1 id="安装Pi-Pico-OpenOCD"><a href="#安装Pi-Pico-OpenOCD" class="headerlink" title="安装Pi Pico OpenOCD"></a>安装Pi Pico OpenOCD</h1><h3 id="Win10下安装MSYS2"><a href="#Win10下安装MSYS2" class="headerlink" title="Win10下安装MSYS2"></a>Win10下安装MSYS2</h3><ul>
@@ -98,8 +99,8 @@
 <hr>
 <h1 id="JLink驱动"><a href="#JLink驱动" class="headerlink" title="JLink驱动"></a>JLink驱动</h1><ul>
 <li>由于使用的是OpenOCD, 所以并不能直接使用Segger提供的JLink的驱动，下载<a href="https://zadig.akeo.ie/">Zading</a></li>
-<li>打开Zading选择List All Device  <div style="width:70%;margin:auto"><img src="/2022/04/09/pipico-swd/zading1.JPG" class="" title="List All Device"></li>
-<li>选取JLink对应的接口，原驱动应为jlink (vx.xx.x.x), 替换为WinUSB, 点击替换驱动按钮  <div style="width:70%;margin:auto"><img src="/2022/04/09/pipico-swd/zading2.JPG" class="" title="Replace Driver"></li>
+<li>打开Zading选择List All Device  <div style="width:60%;margin:auto"><img src="/2022/04/09/pipico-swd/zading1.JPG" class="" title="List All Device"></div></li>
+<li>选取JLink对应的接口，原驱动应为jlink (vx.xx.x.x), 替换为WinUSB, 点击替换驱动按钮  <div style="width:60%;margin:auto"><img src="/2022/04/09/pipico-swd/zading2.JPG" class="" title="Replace Driver"></div></li>
 </ul>
 <hr>
 <h1 id="通过SWD下载"><a href="#通过SWD下载" class="headerlink" title="通过SWD下载"></a>通过SWD下载</h1><p>在MSYS2 MinGW x64中执行</p>
