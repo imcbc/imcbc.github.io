@@ -42,10 +42,54 @@
         <category>DIY</category>
       </categories>
       <tags>
+        <tag>ARM</tag>
         <tag>STM32</tag>
         <tag>嵌入式</tag>
         <tag>PetProjects</tag>
         <tag>ProjectReverie</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>ARM Cortex M33非对齐访问</title>
+    <url>/2022/04/10/cm33-uac/</url>
+    <content><![CDATA[<p>前一阵子在某芯片上遇到了一个设计问题：芯片中的控制核为ARM Cortex-M33内核（SSE200 IP），并在芯片中存在多个物理地址并不连续的SRAM，其中M33 Local Mem地址范围为0x2000_0000, 另一内存地址为0x41xx_xxxx. </p>
+<p>遇到的具体问题为，在locam memory中，任何的非对齐访问全是正常的，但是在0x41xx_xxxx为基地址的内存上，任何非对齐的访问将会导致芯片卡死。</p>
+<span id="more"></span>
+
+<p>后经过仿真分析发现，Cortex M33处理器，如果地址[31:29]为0或者1， arm在总线上会发出两个非对齐访问（胶水逻辑）， 但如果[31:29]为2，则没有非对齐访问的操作。</p>
+<p>后查找手册</p>
+<ul>
+<li><p>根据Cortex-M33 TRM r1p0 38页：<br>  对于Device类型的内存，不允许非对齐访问并会产生错误异常</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/10/cm33-uac/cm33uac1.JPG" class="" title="CM33-TRM"></div>
+</li>
+<li><p>根据Cortex-M33 TRM r1p0 161页面：<br>  对于Device类型的内容，非对齐访问的结果为不可预测，在Cortex-M33上会禅城非对齐的UsageFault。这里面奇怪的是在此芯片上并未产生Usage Fault（可被捕获），而是完全停止响应，似乎更像陷入到不可预测的锁死窗台，似乎和IP的配置有关？</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/10/cm33-uac/cm33uac2.JPG" class="" title="CM33-TRM2"></div>
+</li>
+<li><p>根据Armv8-M ARM(DDI0553 B.s), B7.11 Device memory:</p>
+<ul>
+<li>Device memory is a memory type that is assigned to regions of memory where accesses can have side effects.</li>
+<li>Device memory is not cacheable.</li>
+<li>…</li>
+<li>Any unaligned access to Device memory generates an UNALIGNED UsageFault exception</li>
+</ul>
+</li>
+</ul>
+<div class="note info"><p>至此，已经知道arm对于不同的memory type(Normal&#x2F;Device)使用了不同的访问逻辑， 那么对应到这个具体的出错案例，0x2000_xxxx 和 0x41xx_xxxx的memory type呢？</p>
+</div>
+
+
+<ul>
+<li>根据Armv8-M ARM, B8.1 System address map:<div style="width:100%;margin:auto"><img src="/2022/04/10/cm33-uac/cm33uac3.JPG" class="" title="CM33-ARM1"></div></li>
+</ul>
+<p>所以，0x41xx_xxxx在CM33下默认映射就是Device类型的访问，其根本不支持非对齐访问，这也正是这个问题的根源，修补办法只有软件限制非对齐访问。</p>
+]]></content>
+      <categories>
+        <category>SoC Design</category>
+      </categories>
+      <tags>
+        <tag>ARM</tag>
+        <tag>嵌入式</tag>
+        <tag>Cortex-M33</tag>
       </tags>
   </entry>
   <entry>
