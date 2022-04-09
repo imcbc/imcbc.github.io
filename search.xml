@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>AirProbe</title>
+    <url>/2022/04/09/airprobe/</url>
+    <content><![CDATA[<div style="width:60%;margin:auto"><img src="/2022/04/09/airprobe/ap.JPG" class="" title="AirProbe">
+测量PM2.5浓度、二氧化碳浓度、温度、湿度
+<span id="more"></span>
+
+<h1 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h1><ul>
+<li>测试PM2.5浓度</li>
+<li>测试CO2浓度</li>
+<li>测试温度、湿度</li>
+<li>可通过环境光调整屏幕亮度</li>
+<li>可选：发送信息至SensorHub</li>
+<li>固件可通过USB-DFU更新</li>
+<li>PCB设计</li>
+<li>3D打印外壳</li>
+</ul>
+<hr>
+<h1 id="主要部件"><a href="#主要部件" class="headerlink" title="主要部件"></a>主要部件</h1><ul>
+<li>主控：    STM32F103RBT6</li>
+<li>EEROM：   AT24C02</li>
+<li>LDO：     AMS1117-3.3</li>
+<li>RF：      CC1103</li>
+<li>PM2.5     PMS5003</li>
+<li>LCD       TJC3224T022</li>
+<li>CO2       SCD30</li>
+</ul>
+<hr>
+<h1 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h1><div style="width:100%;margin:auto"><img src="/2022/04/09/airprobe/ap5.JPG" class="" title="外壳设计">
+<div style="width:100%;margin:auto"><img src="/2022/04/09/airprobe/ap2.JPG" class="" title="组装前">
+<div style="width:100%;margin:auto"><img src="/2022/04/09/airprobe/ap3.JPG" class="" title="侧视图">
+<div style="width:100%;margin:auto"><img src="/2022/04/09/airprobe/ap4.JPG" class="" title="组装后">
+<div style="width:100%;margin:auto"><img src="/2022/04/09/airprobe/ap1.JPG" class="" title="安装后">
+
+<hr>
+<h1 id="项目地址"><a href="#项目地址" class="headerlink" title="项目地址"></a>项目地址</h1><p><a href="https://github.com/imcbc/airprobe">AirProbe</a></p>
+]]></content>
+      <categories>
+        <category>DIY</category>
+      </categories>
+      <tags>
+        <tag>STM32</tag>
+        <tag>嵌入式</tag>
+        <tag>PetProjects</tag>
+        <tag>ProjectReverie</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>使用Jlink-SWD下载与调试Raspberry Pi Pico</title>
+    <url>/2022/04/09/pipico-swd/</url>
+    <content><![CDATA[<h1 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h1><p>Raspberry Pi Pico提供了除了默认通过按键-上电-枚举U盘的方式下载外，同时提供了SWD接口用来下载和单步调试，这种方式非常易于调试，可以避免频繁的拔插USB。使用环境为Windows10.</p>
+<span id="more"></span>
+<p>RPi官方提供的最直接的环境是使用另外一个PiPico作为USB-SWD Bridge, 烧写PicoProbe固件并用来调试其他PiPico, 但是如果已经有其他USB-SWD调试器，也是可以使用的</p>
+<hr>
+<h1 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h1><ul>
+<li>编译可执行的Pi Pico可执行文件， 假设文件位置为当前位置，文件名为testcode.elf</li>
+<li>JLink(v9)一套， 接口如图，需要连接SWDIO， SWCLK， VTref和GND  <div style="width:30%;margin:auto"><img src="/2022/04/09/pipico-swd/jlink_swd.JPG" class="" title="JLink-SWD接口"></li>
+</ul>
+<hr>
+<h1 id="安装Pi-Pico-OpenOCD"><a href="#安装Pi-Pico-OpenOCD" class="headerlink" title="安装Pi Pico OpenOCD"></a>安装Pi Pico OpenOCD</h1><h3 id="Win10下安装MSYS2"><a href="#Win10下安装MSYS2" class="headerlink" title="Win10下安装MSYS2"></a>Win10下安装MSYS2</h3><ul>
+<li><p>官方提供的Windows下安装PiPico方法是首先安装<a href="https://www.msys2.org/">MSYS2</a></p>
+</li>
+<li><p>安装完成后执行</p>
+<blockquote>
+<p>pacman -Syu</p>
+</blockquote>
+</li>
+<li><p>完成后窗口自动关闭，确保打开64bit版本后执行</p>
+<blockquote>
+<p>pacman -Su</p>
+</blockquote>
+</li>
+<li><p>更新完后安装依赖</p>
+<blockquote>
+<p>pacman -S mingw-w64-x86_64-toolchain git make libtool pkg-config autoconf automake texinfo mingw-w64-x86_64-libusb</p>
+</blockquote>
+<h3 id="编译安装OpenOCD"><a href="#编译安装OpenOCD" class="headerlink" title="编译安装OpenOCD"></a>编译安装OpenOCD</h3></li>
+<li><p>安装完成后，打开MSYS MinGW x64</p>
+</li>
+<li><p>下载安装openocd包</p>
+<blockquote>
+<p> git clone <a href="https://github.com/raspberrypi/openocd.git">https://github.com/raspberrypi/openocd.git</a> –branch rp2040 –depth&#x3D;1</p>
+</blockquote>
+</li>
+<li><p>编译</p>
+<blockquote>
+<p>cd openocd<br>.&#x2F;bootstrap<br>.&#x2F;configure –enable-picoprobe –disable-werror<br>make -j4<br>make install</p>
+</blockquote>
+</li>
+<li><p>测试(出现错误正常)</p>
+<blockquote>
+<p>src&#x2F;openocd.exe</p>
+</blockquote>
+</li>
+</ul>
+<hr>
+<h1 id="JLink驱动"><a href="#JLink驱动" class="headerlink" title="JLink驱动"></a>JLink驱动</h1><ul>
+<li>由于使用的是OpenOCD, 所以并不能直接使用Segger提供的JLink的驱动，下载<a href="https://zadig.akeo.ie/">Zading</a></li>
+<li>打开Zading选择List All Device  <div style="width:70%;margin:auto"><img src="/2022/04/09/pipico-swd/zading1.JPG" class="" title="List All Device"></li>
+<li>选取JLink对应的接口，原驱动应为jlink (vx.xx.x.x), 替换为WinUSB, 点击替换驱动按钮  <div style="width:70%;margin:auto"><img src="/2022/04/09/pipico-swd/zading2.JPG" class="" title="Replace Driver"></li>
+</ul>
+<hr>
+<h1 id="通过SWD下载"><a href="#通过SWD下载" class="headerlink" title="通过SWD下载"></a>通过SWD下载</h1><p>在MSYS2 MinGW x64中执行</p>
+<blockquote>
+<p>openocd -f interface&#x2F;jlink.cfg -c “transport select swd” -c “adapter_khz 6000” -f target&#x2F;rp2040.cfg -c “program testcode.elf verify reset exit”</p>
+</blockquote>
+<p>其中-f interface&#x2F;jlink.cfg用来选择调试器为JLink, 其后面的-c “transport select swd”用于切换调试接口为SWD，JLink默认的接口类型为JTAG，所以这个配置必须紧跟当前的-f interface&#x2F;jlink.cfg</p>
+<p>-c “adapter_khz 6000”选择当前SWD频率， 也必须位于-f interface&#x2F;jlink.cfg 之后，且下一个-f xxx 之前</p>
+<hr>
+<h1 id="通过SWD调试"><a href="#通过SWD调试" class="headerlink" title="通过SWD调试"></a>通过SWD调试</h1><h3 id="安装GDB-Client"><a href="#安装GDB-Client" class="headerlink" title="安装GDB Client"></a>安装GDB Client</h3><p>下载安装最新的GNU ARM GCC编译器</p>
+<h3 id="安装调试界面"><a href="#安装调试界面" class="headerlink" title="安装调试界面"></a>安装调试界面</h3><p>调试界面可以是常用的Eclipse或者基于VSCode改造，我已经安装了STM32CubeIDE， 也是基于Eclipse内核的，所以就直接用STM32CubeIDE了。 如果是安装Eclipse, 可以使用C&#x2F;C++版本，选择安装arm相关的调试包即可。</p>
+<h3 id="调试下载"><a href="#调试下载" class="headerlink" title="调试下载"></a>调试下载</h3><ul>
+<li>MSYS2 MinGW x64启动OpenOCD为GDB Server:<blockquote>
+<p>openocd -f interface&#x2F;jlink.cfg -c “transport select swd” -c “adapter_khz 6000” -f target&#x2F;rp2040.cfg</p>
+</blockquote>
+</li>
+<li>打开STM32CubeIDE调试配置页面：<ul>
+<li>新建GDB Hardware Debugging</li>
+<li>Project: 名字随便起</li>
+<li>C&#x2F;C++ Application: 指向testcode.elf</li>
+<li>Disable Auto Build<img src="/2022/04/09/pipico-swd/ide1.JPG" class="" title="GDBClientCfg1"></li>
+</ul>
+</li>
+<li>配置Debugger Pannel:<ul>
+<li>GDB Command指向安装的arm gcc工具链下面的arm-none-eabi-gdb</li>
+<li>使用Remote Target</li>
+<li>Remote Target类型为OpenOCD</li>
+<li>Host Name: localhost</li>
+<li>Port Number: 3333<img src="/2022/04/09/pipico-swd/ide2.JPG" class="" title="GDBClientCfg2"></li>
+</ul>
+</li>
+<li>Startup页面配置：可以根据需要调整<img src="/2022/04/09/pipico-swd/ide3.JPG" class="" title="GDBClientCfg3"></li>
+<li>Apply &amp; Debug</li>
+</ul>
+]]></content>
+      <categories>
+        <category>PiPico</category>
+      </categories>
+      <tags>
+        <tag>嵌入式</tag>
+        <tag>PetProjects</tag>
+        <tag>PiPico</tag>
+        <tag>Jlink</tag>
+        <tag>SWD</tag>
+        <tag>调试</tag>
+      </tags>
+  </entry>
+</search>
