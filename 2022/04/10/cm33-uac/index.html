@@ -31,7 +31,7 @@
 <meta property="og:image" content="https://imcbc.github.io/2022/04/10/cm33-uac/cm33uac2.JPG">
 <meta property="og:image" content="https://imcbc.github.io/2022/04/10/cm33-uac/cm33uac3.JPG">
 <meta property="article:published_time" content="2022-04-09T16:46:22.000Z">
-<meta property="article:modified_time" content="2022-04-09T17:32:31.377Z">
+<meta property="article:modified_time" content="2022-04-10T05:36:55.080Z">
 <meta property="article:author" content="IMCBC">
 <meta property="article:tag" content="ARM">
 <meta property="article:tag" content="嵌入式">
@@ -246,7 +246,7 @@
       <span class="post-meta-item-text">Posted on</span>
       
 
-      <time title="Created: 2022-04-10 00:46:22 / Modified: 01:32:31" itemprop="dateCreated datePublished" datetime="2022-04-10T00:46:22+08:00">2022-04-10</time>
+      <time title="Created: 2022-04-10 00:46:22 / Modified: 13:36:55" itemprop="dateCreated datePublished" datetime="2022-04-10T00:46:22+08:00">2022-04-10</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -297,7 +297,18 @@
 <ul>
 <li>根据Armv8-M ARM, B8.1 System address map:<div style="width:100%;margin:auto"><img src="/2022/04/10/cm33-uac/cm33uac3.JPG" class="" title="CM33-ARM1"></div></li>
 </ul>
-<p>所以，0x41xx_xxxx在CM33下默认映射就是Device类型的访问，其根本不支持非对齐访问，这也正是这个问题的根源，修补办法只有软件限制非对齐访问。</p>
+<p>所以，0x41xx_xxxx在CM33下默认映射就是Device类型的访问，其根本不支持非对齐访问，这也正是这个问题的根源。</p>
+<p>那么ARM为什么要这么约束呢？</p>
+<p>根据AMBA总线AHB协议中地址的限定，其支持单字节，双字节，四字节的地址类型，双字节时，HADDR[0]&#x3D;1’b0, 四字节时，HADDR[1:0]&#x3D;2’b00。所以，当CPU遇到指令集发出非对齐访的ld&#x2F;st时，那么就遇到了第一个问题：是否原封不动的发出总线请求：</p>
+<ul>
+<li>如果原封不动的发出请求，则违反总线协议</li>
+<li>如果在处理器外围增加胶水逻辑，负责拆分非对齐的总线请求，这样能做到对软件透明，但是会遇到另外一个问题：这个拆分对软件并不透明，对于外设寄存器这样的类型的访问，被拆分成两次以上独立的访问有可能与硬件的规划是冲突的，比如利用非对齐地址更改Bit8和Bit4, 加入硬件期待的时这两个Bit同时置位，但CPU却因为非对齐地址的问题这两个比特的更新被拆分为了两次操作完成，而这样的操作是软件、调试器不可感知的。</li>
+</ul>
+<div class="note info"><p>通过这样限定内存地址类型来调整CPU的行为似乎就显得非常合理了，SRAM类型的就为了满足软件的自由度可以进行自由拆分，而外设类型的地址访问，则考虑到某些硬件外设的特殊时许要求，则需要保持“as-is”这样的逻辑。</p>
+</div>
+
+<p>那么，这次遇到的0x41xx_xxxx地址的内存，其实也属于SoC架构的小疏忽了，不应该让一个SRAM类型的地址被映射到0x4xxx_xxxx这样的地址范围上，从而让ARM认为这是个Device, 而非SRAM。</p>
+<p>而问题的修补办法只有软件限制非对齐访问，当然这样的访问也并非全是坏事：可以减少非对齐访问导致增加的额外周期，提高CPU对内存访问效率。</p>
 
     </div>
 
