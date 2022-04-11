@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>AirProbe</title>
+    <url>/2022/04/09/airprobe/</url>
+    <content><![CDATA[<p>测量PM2.5浓度、二氧化碳浓度、温度、湿度</p>
+<div style="width:40%;margin:auto"><img src="/2022/04/09/airprobe/ap.JPG" class="" title="AirProbe"></div>
+<span id="more"></span>
+
+<h1 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h1><ul>
+<li>测试PM2.5浓度</li>
+<li>测试CO2浓度</li>
+<li>测试温度、湿度</li>
+<li>可通过环境光调整屏幕亮度</li>
+<li>可选：发送信息至SensorHub</li>
+<li>固件可通过USB-DFU更新</li>
+<li>PCB设计</li>
+<li>3D打印外壳</li>
+</ul>
+<hr>
+<h1 id="主要部件"><a href="#主要部件" class="headerlink" title="主要部件"></a>主要部件</h1><ul>
+<li>主控：    STM32F103RBT6</li>
+<li>EEROM：   AT24C02</li>
+<li>LDO：     AMS1117-3.3</li>
+<li>RF：      CC1103</li>
+<li>PM2.5     PMS5003</li>
+<li>LCD       TJC3224T022</li>
+<li>CO2       SCD30</li>
+</ul>
+<hr>
+<h1 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h1><div style="width:70%;margin:auto"><img src="/2022/04/09/airprobe/ap5.JPG" class="" title="外壳设计"></div>
+<div style="width:70%;margin:auto"><img src="/2022/04/09/airprobe/ap2.JPG" class="" title="组装前"></div>
+<div style="width:70%;margin:auto"><img src="/2022/04/09/airprobe/ap3.JPG" class="" title="侧视图"></div>
+<div style="width:70%;margin:auto"><img src="/2022/04/09/airprobe/ap4.JPG" class="" title="组装后"></div>
+<div style="width:70%;margin:auto"><img src="/2022/04/09/airprobe/ap1.JPG" class="" title="安装后"></div>
+
+<hr>
+<h1 id="项目地址"><a href="#项目地址" class="headerlink" title="项目地址"></a>项目地址</h1><p><a href="https://github.com/imcbc/airprobe">AirProbe</a></p>
+<hr>
+]]></content>
+      <categories>
+        <category>DIY</category>
+      </categories>
+      <tags>
+        <tag>ARM</tag>
+        <tag>STM32</tag>
+        <tag>嵌入式</tag>
+        <tag>PetProjects</tag>
+        <tag>ProjectReverie</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>ARM Cortex M33非对齐访问</title>
+    <url>/2022/04/10/cm33-uac/</url>
+    <content><![CDATA[<p>前一阵子在某芯片上遇到了一个设计问题：芯片中的控制核为ARM Cortex-M33内核（SSE200 IP），并在芯片中存在多个物理地址并不连续的SRAM，其中M33 Local Mem地址范围为0x2000_0000, 另一内存地址为0x41xx_xxxx. </p>
+<p>遇到的具体问题为，在locam memory中，任何的非对齐访问全是正常的，但是在0x41xx_xxxx为基地址的内存上，任何非对齐的访问将会导致芯片卡死。</p>
+<span id="more"></span>
+
+<p>后经过仿真分析发现，Cortex M33处理器，如果地址[31:29]为0或者1， arm在总线上会发出两个非对齐访问（胶水逻辑）， 但如果[31:29]为2，则没有非对齐访问的操作。</p>
+<p>后查找手册</p>
+<ul>
+<li><p>根据Cortex-M33 TRM r1p0 38页：<br>  对于Device类型的内存，不允许非对齐访问并会产生错误异常</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/10/cm33-uac/cm33uac1.JPG" class="" title="CM33-TRM"></div>
+</li>
+<li><p>根据Cortex-M33 TRM r1p0 161页面：<br>  对于Device类型的内容，非对齐访问的结果为不可预测，在Cortex-M33上会禅城非对齐的UsageFault。这里面奇怪的是在此芯片上并未产生Usage Fault（可被捕获），而是完全停止响应，似乎更像陷入到不可预测的锁死窗台，似乎和IP的配置有关？</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/10/cm33-uac/cm33uac2.JPG" class="" title="CM33-TRM2"></div>
+</li>
+<li><p>根据Armv8-M ARM(DDI0553 B.s), B7.11 Device memory:</p>
+<ul>
+<li>Device memory is a memory type that is assigned to regions of memory where accesses can have side effects.</li>
+<li>Device memory is not cacheable.</li>
+<li>…</li>
+<li>Any unaligned access to Device memory generates an UNALIGNED UsageFault exception</li>
+</ul>
+</li>
+</ul>
+<div class="note info"><p>至此，已经知道arm对于不同的memory type(Normal&#x2F;Device)使用了不同的访问逻辑， 那么对应到这个具体的出错案例，0x2000_xxxx 和 0x41xx_xxxx的memory type呢？</p>
+</div>
+
+
+<ul>
+<li>根据Armv8-M ARM, B8.1 System address map:<div style="width:100%;margin:auto"><img src="/2022/04/10/cm33-uac/cm33uac3.JPG" class="" title="CM33-ARM1"></div></li>
+</ul>
+<p>所以，0x41xx_xxxx在CM33下默认映射就是Device类型的访问，其根本不支持非对齐访问，这也正是这个问题的根源。</p>
+<p>那么ARM为什么要这么约束呢？</p>
+<p>根据AMBA总线AHB协议中地址的限定，其支持单字节，双字节，四字节的地址类型，双字节时，HADDR[0]&#x3D;1’b0, 四字节时，HADDR[1:0]&#x3D;2’b00。所以，当CPU遇到指令集发出非对齐访的ld&#x2F;st时，那么就遇到了第一个问题：是否原封不动的发出总线请求：</p>
+<ul>
+<li>如果原封不动的发出请求，则违反总线协议</li>
+<li>如果在处理器外围增加胶水逻辑，负责拆分非对齐的总线请求，这样能做到对软件透明，但是会遇到另外一个问题：这个拆分对软件并不透明，对于外设寄存器这样的类型的访问，被拆分成两次以上独立的访问有可能与硬件的规划是冲突的，比如利用非对齐地址更改Bit8和Bit4, 加入硬件期待的时这两个Bit同时置位，但CPU却因为非对齐地址的问题这两个比特的更新被拆分为了两次操作完成，而这样的操作是软件、调试器不可感知的。</li>
+</ul>
+<div class="note info"><p>通过这样限定内存地址类型来调整CPU的行为似乎就显得非常合理了，SRAM类型的就为了满足软件的自由度可以进行自由拆分，而外设类型的地址访问，则考虑到某些硬件外设的特殊时许要求，则需要保持“as-is”这样的逻辑。</p>
+</div>
+
+<p>那么，这次遇到的0x41xx_xxxx地址的内存，其实也属于SoC架构的小疏忽了，不应该让一个SRAM类型的地址被映射到0x4xxx_xxxx这样的地址范围上，从而让ARM认为这是个Device, 而非SRAM。</p>
+<p>而问题的修补办法只有软件限制非对齐访问，当然这样的访问也并非全是坏事：可以减少非对齐访问导致增加的额外周期，提高CPU对内存访问效率。</p>
+]]></content>
+      <categories>
+        <category>SoC Design</category>
+      </categories>
+      <tags>
+        <tag>ARM</tag>
+        <tag>嵌入式</tag>
+        <tag>Cortex-M33</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>使用Jlink-SWD下载与调试Raspberry Pi Pico</title>
+    <url>/2022/04/09/pipico-swd/</url>
+    <content><![CDATA[<h1 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h1><p>Raspberry Pi Pico提供了除了默认通过按键-上电-枚举U盘的方式下载外，同时提供了SWD接口用来下载和单步调试，这种方式非常易于调试，可以避免频繁的拔插USB。使用环境为Windows10.</p>
+<span id="more"></span>
+<p>RPi官方提供的最直接的环境是使用另外一个PiPico作为USB-SWD Bridge, 烧写PicoProbe固件并用来调试其他PiPico, 但是如果已经有其他USB-SWD调试器，也是可以使用的</p>
+<hr>
+<h1 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h1><ul>
+<li>编译可执行的Pi Pico可执行文件， 假设文件位置为当前位置，文件名为testcode.elf</li>
+<li>JLink(v9)一套， 接口如图，需要连接SWDIO， SWCLK， VTref和GND  <div style="width:30%;margin:auto"><img src="/2022/04/09/pipico-swd/jlink_swd.JPG" class="" title="JLink-SWD接口"></div></li>
+</ul>
+<hr>
+<h1 id="安装Pi-Pico-OpenOCD"><a href="#安装Pi-Pico-OpenOCD" class="headerlink" title="安装Pi Pico OpenOCD"></a>安装Pi Pico OpenOCD</h1><h3 id="Win10下安装MSYS2"><a href="#Win10下安装MSYS2" class="headerlink" title="Win10下安装MSYS2"></a>Win10下安装MSYS2</h3><ul>
+<li><p>官方提供的Windows下安装PiPico方法是首先安装<a href="https://www.msys2.org/">MSYS2</a></p>
+</li>
+<li><p>安装完成后执行</p>
+<blockquote>
+<p>pacman -Syu</p>
+</blockquote>
+</li>
+<li><p>完成后窗口自动关闭，确保打开64bit版本后执行</p>
+<blockquote>
+<p>pacman -Su</p>
+</blockquote>
+</li>
+<li><p>更新完后安装依赖</p>
+<blockquote>
+<p>pacman -S mingw-w64-x86_64-toolchain git make libtool pkg-config autoconf automake texinfo mingw-w64-x86_64-libusb</p>
+</blockquote>
+<h3 id="编译安装OpenOCD"><a href="#编译安装OpenOCD" class="headerlink" title="编译安装OpenOCD"></a>编译安装OpenOCD</h3></li>
+<li><p>安装完成后，打开MSYS MinGW x64</p>
+</li>
+<li><p>下载安装openocd包</p>
+<blockquote>
+<p> git clone <a href="https://github.com/raspberrypi/openocd.git">https://github.com/raspberrypi/openocd.git</a> –branch rp2040 –depth&#x3D;1</p>
+</blockquote>
+</li>
+<li><p>编译</p>
+<blockquote>
+<p>cd openocd<br>.&#x2F;bootstrap<br>.&#x2F;configure –enable-picoprobe –disable-werror<br>make -j4<br>make install</p>
+</blockquote>
+</li>
+<li><p>测试(出现错误正常)</p>
+<blockquote>
+<p>src&#x2F;openocd.exe</p>
+</blockquote>
+</li>
+</ul>
+<hr>
+<h1 id="JLink驱动"><a href="#JLink驱动" class="headerlink" title="JLink驱动"></a>JLink驱动</h1><ul>
+<li>由于使用的是OpenOCD, 所以并不能直接使用Segger提供的JLink的驱动，下载<a href="https://zadig.akeo.ie/">Zading</a></li>
+<li>打开Zading选择List All Device  <div style="width:60%;margin:auto"><img src="/2022/04/09/pipico-swd/zading1.JPG" class="" title="List All Device"></div></li>
+<li>选取JLink对应的接口，原驱动应为jlink (vx.xx.x.x), 替换为WinUSB, 点击替换驱动按钮  <div style="width:60%;margin:auto"><img src="/2022/04/09/pipico-swd/zading2.JPG" class="" title="Replace Driver"></div></li>
+</ul>
+<hr>
+<h1 id="通过SWD下载"><a href="#通过SWD下载" class="headerlink" title="通过SWD下载"></a>通过SWD下载</h1><p>在MSYS2 MinGW x64中执行</p>
+<blockquote>
+<p>openocd -f interface&#x2F;jlink.cfg -c “transport select swd” -c “adapter_khz 6000” -f target&#x2F;rp2040.cfg -c “program testcode.elf verify reset exit”</p>
+</blockquote>
+<p>其中-f interface&#x2F;jlink.cfg用来选择调试器为JLink, 其后面的-c “transport select swd”用于切换调试接口为SWD，JLink默认的接口类型为JTAG，所以这个配置必须紧跟当前的-f interface&#x2F;jlink.cfg</p>
+<p>-c “adapter_khz 6000”选择当前SWD频率， 也必须位于-f interface&#x2F;jlink.cfg 之后，且下一个-f xxx 之前</p>
+<hr>
+<h1 id="通过SWD调试"><a href="#通过SWD调试" class="headerlink" title="通过SWD调试"></a>通过SWD调试</h1><h3 id="安装GDB-Client"><a href="#安装GDB-Client" class="headerlink" title="安装GDB Client"></a>安装GDB Client</h3><p>下载安装最新的GNU ARM GCC编译器</p>
+<h3 id="安装调试界面"><a href="#安装调试界面" class="headerlink" title="安装调试界面"></a>安装调试界面</h3><p>调试界面可以是常用的Eclipse或者基于VSCode改造，我已经安装了STM32CubeIDE， 也是基于Eclipse内核的，所以就直接用STM32CubeIDE了。 如果是安装Eclipse, 可以使用C&#x2F;C++版本，选择安装arm相关的调试包即可。</p>
+<h3 id="调试下载"><a href="#调试下载" class="headerlink" title="调试下载"></a>调试下载</h3><ul>
+<li>MSYS2 MinGW x64启动OpenOCD为GDB Server:<blockquote>
+<p>openocd -f interface&#x2F;jlink.cfg -c “transport select swd” -c “adapter_khz 6000” -f target&#x2F;rp2040.cfg</p>
+</blockquote>
+</li>
+<li>打开STM32CubeIDE调试配置页面：<ul>
+<li>新建GDB Hardware Debugging</li>
+<li>Project: 名字随便起</li>
+<li>C&#x2F;C++ Application: 指向testcode.elf</li>
+<li>Disable Auto Build<img src="/2022/04/09/pipico-swd/ide1.JPG" class="" title="GDBClientCfg1"></li>
+</ul>
+</li>
+<li>配置Debugger Pannel:<ul>
+<li>GDB Command指向安装的arm gcc工具链下面的arm-none-eabi-gdb</li>
+<li>使用Remote Target</li>
+<li>Remote Target类型为OpenOCD</li>
+<li>Host Name: localhost</li>
+<li>Port Number: 3333<img src="/2022/04/09/pipico-swd/ide2.JPG" class="" title="GDBClientCfg2"></li>
+</ul>
+</li>
+<li>Startup页面配置：可以根据需要调整<img src="/2022/04/09/pipico-swd/ide3.JPG" class="" title="GDBClientCfg3"></li>
+<li>Apply &amp; Debug</li>
+</ul>
+]]></content>
+      <categories>
+        <category>PiPico</category>
+      </categories>
+      <tags>
+        <tag>嵌入式</tag>
+        <tag>PetProjects</tag>
+        <tag>PiPico</tag>
+        <tag>Jlink</tag>
+        <tag>SWD</tag>
+        <tag>调试</tag>
+      </tags>
+  </entry>
+</search>
