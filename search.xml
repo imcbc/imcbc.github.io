@@ -50,6 +50,60 @@
       </tags>
   </entry>
   <entry>
+    <title>ARM Cortex-M33数据断点</title>
+    <url>/2022/04/12/arm-dwt/</url>
+    <content><![CDATA[<p>日常调试中，除了需要在指令执行上插入断点以进行跟踪或单步调试，在某些情况下，也需要跟踪数据变化并当某内存数据发生变化时产生断点。 </p>
+<p>这个功能在ARM Cortex-M33中，可以通过利用DWT实现。</p>
+<span id="more"></span>
+
+<h1 id="配置DWT"><a href="#配置DWT" class="headerlink" title="配置DWT"></a>配置DWT</h1><h3 id="打开DWT功能"><a href="#打开DWT功能" class="headerlink" title="打开DWT功能"></a>打开DWT功能</h3><p>在Secure模式下修改DEMCR(0xE000EDFC)寄存器中打开DWT功能:</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt1.PNG" class="" title="DEMCR"></div>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt2.PNG" class="" title="DEMCR_TRCENA"></div>
+
+<h3 id="配置比较器"><a href="#配置比较器" class="headerlink" title="配置比较器"></a>配置比较器</h3><p>回到Non-Secure下，修改DWT_COMP<n>寄存器，n的范围为硬件支持DWT比较器个数， DWT_COMP0的地址是0xE0001020，<br>在此寄存器中填入希望跟踪的地址，例如0x2800_8000：</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt3.PNG" class="" title="DWT_COMP0"></div>
+
+<p>DWT比较器可以跟踪多种类型，比如cycle count, PC地址，这里只关心Data Access:</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt4.PNG" class="" title="DWT_COMP0_DATA"></div>
+
+<h3 id="使能比较器"><a href="#使能比较器" class="headerlink" title="使能比较器"></a>使能比较器</h3><p>DWT_FUNCION<n>寄存器的基地址为0xE0001028, 内容如下：</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt5.PNG" class="" title="DWT_FUNC1"></div>
+其中，[31:27] ID位， [24] MATCHED位为只读
+
+<p>DATASIZE（此处配置为4BYTE）</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt6.PNG" class="" title="DWT_FUNC2"></div>
+
+<p>ACTION（此处配置为2’b01， Generate debug event)</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt7.PNG" class="" title="DWT_FUNC3"></div>
+
+<p>MATCH:<br>MATCH位较为复杂，具体参考armv8m-arm D2.2.62 DWT_FUNCTION<n>, 此处配置为4’b0101, 即Data Address Write</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt8.PNG" class="" title="DWT_FUNC4"></div>
+
+<p>最终DWT_FUNCTION0 &#x3D; 0x58000815</p>
+<h1 id="挂载调试器"><a href="#挂载调试器" class="headerlink" title="挂载调试器"></a>挂载调试器</h1><p>挂在GDB Server:</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt9.PNG" class="" title="JLINK_GDBSERVER"></div>
+
+<p>打开GDB Client 并继续程序</p>
+<blockquote>
+<p>target remote localhost:2331<br>monitor halt<br>info reg<br>c</p>
+</blockquote>
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>完成了DWT使能、DWT_COMP0、DWT_FUNCION0的配置后，如果有data access到测试地址0x2800_8000将会产生调试时间并被调试器捕获进而可以展开更多调试：</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt10.PNG" class="" title="Capture"></div>
+
+
+
+]]></content>
+      <categories>
+        <category>SoC Design</category>
+      </categories>
+      <tags>
+        <tag>ARM</tag>
+        <tag>嵌入式</tag>
+        <tag>调试</tag>
+        <tag>Cortex-M33</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>ARM Cortex M33非对齐访问</title>
     <url>/2022/04/10/cm33-uac/</url>
     <content><![CDATA[<p>前一阵子在某芯片上遇到了一个设计问题：芯片中的控制核为ARM Cortex-M33内核（SSE200 IP），并在芯片中存在多个物理地址并不连续的SRAM，其中M33 Local Mem地址范围为0x2000_0000, 另一内存地址为0x41xx_xxxx. </p>
@@ -197,10 +251,10 @@
       <tags>
         <tag>嵌入式</tag>
         <tag>PetProjects</tag>
+        <tag>调试</tag>
         <tag>PiPico</tag>
         <tag>Jlink</tag>
         <tag>SWD</tag>
-        <tag>调试</tag>
       </tags>
   </entry>
 </search>
