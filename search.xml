@@ -50,7 +50,7 @@
       </tags>
   </entry>
   <entry>
-    <title>ARM Cortex-M33数据断点</title>
+    <title>ARM Cortex-M33数据断点和TRAP功能</title>
     <url>/2022/04/12/arm-dwt/</url>
     <content><![CDATA[<p>日常调试中，除了需要在指令执行上插入断点以进行跟踪或单步调试，在某些情况下，也需要跟踪数据变化并当某内存数据发生变化时产生断点。 </p>
 <p>这个功能在ARM Cortex-M33中，可以通过利用DWT实现。</p>
@@ -92,6 +92,12 @@
 
 
 
+<h1 id="TRAP"><a href="#TRAP" class="headerlink" title="TRAP"></a>TRAP</h1><p>类似的， 既然ARM可以监测到数据变化并产生debug event, 那也是可以产生Debug Monitor Excpetion，从而不用调试器就可以拦截特定地址的数据访问或者指令访问。</p>
+<div class="note info"><p>这种在某些应用场合会非常的有帮助，比如无法一直挂在调试器，又或者当部分代码是按照lib的形式存储在ROM上，而随着软件的升级部分功能需要替换，或者ROM上的代码有部分bug, 为了不完全替换ROM code(可能会浪费大量内存)， 可以把需要替换的代码的入口地址加入监视目标，当程序跳转此处时产生中断，打断当前执行并进行替换。通常此类操作为TRAP &amp; CATCH。</p>
+</div>
+
+<p>而使用方法则非常简单，在前面提到的DEMCR寄存器[16]位MON_EN置位为1即可，如果有对应地址或者指令的访问，Secure端的Debug Monitor Exception将会执行。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">CoreDebug-&gt;DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;</span><br><span class="line">CoreDebug-&gt;DEMCR |= CoreDebug_DEMCR_MON_EN_Msk;</span><br><span class="line">DWT-&gt;CTRL |= DWT_CTRL_CYCCNTENA_Msk;</span><br><span class="line">DWT-&gt;CYCCNT = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>SoC Design</category>

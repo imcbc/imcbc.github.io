@@ -22,7 +22,7 @@
 
     <meta name="description" content="日常调试中，除了需要在指令执行上插入断点以进行跟踪或单步调试，在某些情况下，也需要跟踪数据变化并当某内存数据发生变化时产生断点。  这个功能在ARM Cortex-M33中，可以通过利用DWT实现。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="ARM Cortex-M33数据断点">
+<meta property="og:title" content="ARM Cortex-M33数据断点和TRAP功能">
 <meta property="og:url" content="https://imcbc.github.io/2022/04/12/arm-dwt/index.html">
 <meta property="og:site_name" content="CBC Notes">
 <meta property="og:description" content="日常调试中，除了需要在指令执行上插入断点以进行跟踪或单步调试，在某些情况下，也需要跟踪数据变化并当某内存数据发生变化时产生断点。  这个功能在ARM Cortex-M33中，可以通过利用DWT实现。">
@@ -38,7 +38,7 @@
 <meta property="og:image" content="https://imcbc.github.io/2022/04/12/arm-dwt/dwt9.PNG">
 <meta property="og:image" content="https://imcbc.github.io/2022/04/12/arm-dwt/dwt10.PNG">
 <meta property="article:published_time" content="2022-04-12T06:33:03.000Z">
-<meta property="article:modified_time" content="2022-04-12T07:15:03.922Z">
+<meta property="article:modified_time" content="2022-04-12T08:35:55.558Z">
 <meta property="article:author" content="IMCBC">
 <meta property="article:tag" content="ARM">
 <meta property="article:tag" content="嵌入式">
@@ -52,10 +52,10 @@
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://imcbc.github.io/2022/04/12/arm-dwt/","path":"2022/04/12/arm-dwt/","title":"ARM Cortex-M33数据断点"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://imcbc.github.io/2022/04/12/arm-dwt/","path":"2022/04/12/arm-dwt/","title":"ARM Cortex-M33数据断点和TRAP功能"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>ARM Cortex-M33数据断点 | CBC Notes</title>
+<title>ARM Cortex-M33数据断点和TRAP功能 | CBC Notes</title>
   
 
 
@@ -157,7 +157,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%85%8D%E7%BD%AEDWT"><span class="nav-number">1.</span> <span class="nav-text">配置DWT</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%93%E5%BC%80DWT%E5%8A%9F%E8%83%BD"><span class="nav-number">1.0.1.</span> <span class="nav-text">打开DWT功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E6%AF%94%E8%BE%83%E5%99%A8"><span class="nav-number">1.0.2.</span> <span class="nav-text">配置比较器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E8%83%BD%E6%AF%94%E8%BE%83%E5%99%A8"><span class="nav-number">1.0.3.</span> <span class="nav-text">使能比较器</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8C%82%E8%BD%BD%E8%B0%83%E8%AF%95%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">挂载调试器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="nav-number">3.</span> <span class="nav-text">测试</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%85%8D%E7%BD%AEDWT"><span class="nav-number">1.</span> <span class="nav-text">配置DWT</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%93%E5%BC%80DWT%E5%8A%9F%E8%83%BD"><span class="nav-number">1.0.1.</span> <span class="nav-text">打开DWT功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E6%AF%94%E8%BE%83%E5%99%A8"><span class="nav-number">1.0.2.</span> <span class="nav-text">配置比较器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E8%83%BD%E6%AF%94%E8%BE%83%E5%99%A8"><span class="nav-number">1.0.3.</span> <span class="nav-text">使能比较器</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8C%82%E8%BD%BD%E8%B0%83%E8%AF%95%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">挂载调试器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="nav-number">3.</span> <span class="nav-text">测试</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#TRAP"><span class="nav-number">4.</span> <span class="nav-text">TRAP</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -238,12 +238,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="ARM Cortex-M33数据断点 | CBC Notes">
+      <meta itemprop="name" content="ARM Cortex-M33数据断点和TRAP功能 | CBC Notes">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          ARM Cortex-M33数据断点
+          ARM Cortex-M33数据断点和TRAP功能
         </h1>
 
         <div class="post-meta-container">
@@ -255,7 +255,7 @@
       <span class="post-meta-item-text">Posted on</span>
       
 
-      <time title="Created: 2022-04-12 14:33:03 / Modified: 15:15:03" itemprop="dateCreated datePublished" datetime="2022-04-12T14:33:03+08:00">2022-04-12</time>
+      <time title="Created: 2022-04-12 14:33:03 / Modified: 16:35:55" itemprop="dateCreated datePublished" datetime="2022-04-12T14:33:03+08:00">2022-04-12</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -317,6 +317,12 @@
 
 
 
+<h1 id="TRAP"><a href="#TRAP" class="headerlink" title="TRAP"></a>TRAP</h1><p>类似的， 既然ARM可以监测到数据变化并产生debug event, 那也是可以产生Debug Monitor Excpetion，从而不用调试器就可以拦截特定地址的数据访问或者指令访问。</p>
+<div class="note info"><p>这种在某些应用场合会非常的有帮助，比如无法一直挂在调试器，又或者当部分代码是按照lib的形式存储在ROM上，而随着软件的升级部分功能需要替换，或者ROM上的代码有部分bug, 为了不完全替换ROM code(可能会浪费大量内存)， 可以把需要替换的代码的入口地址加入监视目标，当程序跳转此处时产生中断，打断当前执行并进行替换。通常此类操作为TRAP &amp; CATCH。</p>
+</div>
+
+<p>而使用方法则非常简单，在前面提到的DEMCR寄存器[16]位MON_EN置位为1即可，如果有对应地址或者指令的访问，Secure端的Debug Monitor Exception将会执行。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">CoreDebug-&gt;DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;</span><br><span class="line">CoreDebug-&gt;DEMCR |= CoreDebug_DEMCR_MON_EN_Msk;</span><br><span class="line">DWT-&gt;CTRL |= DWT_CTRL_CYCCNTENA_Msk;</span><br><span class="line">DWT-&gt;CYCCNT = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
 
     </div>
 
@@ -334,7 +340,7 @@
   </li>
   <li class="post-copyright-link">
       <strong>Post link: </strong>
-      <a href="https://imcbc.github.io/2022/04/12/arm-dwt/" title="ARM Cortex-M33数据断点">https://imcbc.github.io/2022/04/12/arm-dwt/</a>
+      <a href="https://imcbc.github.io/2022/04/12/arm-dwt/" title="ARM Cortex-M33数据断点和TRAP功能">https://imcbc.github.io/2022/04/12/arm-dwt/</a>
   </li>
   <li class="post-copyright-license">
     <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC</a> unless stating additionally.
