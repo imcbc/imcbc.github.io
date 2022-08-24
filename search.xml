@@ -266,9 +266,63 @@
   <entry>
     <title>自定义OpenHab串口设备</title>
     <url>/2022/04/15/openhab-serial/</url>
-    <content><![CDATA[<p>几年前用过一阵子HomeAssistant</p>
+    <content><![CDATA[<h1 id="HomeAssistant、OpenHab使用经验总结"><a href="#HomeAssistant、OpenHab使用经验总结" class="headerlink" title="HomeAssistant、OpenHab使用经验总结"></a>HomeAssistant、OpenHab使用经验总结</h1><p>几年前在Raspberry Pi上用过一短时间的HomeAssistant，并且通过一些比较复杂的方法，把一些WIFI遥控开关，红外线桥等设备连入，可以进行简单的远程控制，并添加了一些自动脚本，比如空气污染严重时开启新风机，下雨时关闭新风机等操作。但是在实际使用过程中还是发现了不少问题：</p>
 <span id="more"></span>
+<ol>
+<li><p>HomeAssistant后续的官方版本，在镜像被烧在TF卡后的初次启动，需要大量的从网络上下载组件，这非常费时间，在网络不好的时候几个小时甚至一两天都不会有任何进展，而初次安装时系统没有任何交互功能，包括屏幕，串口等，所以完全不知道具体进展;</p>
+</li>
+<li><p>虽然提供了Web UI来展示各种传感器信息或者控制，但是配置这些模块却需要通写脚本来完成，需要熟悉这些配置的脚本却需要大量的时间，HA提供的手册信息非常有限，需要大量的从社区获得这些知识;</p>
+</li>
+<li><p>HA当时并没有官方的云服务，所以需要自己搭建内网穿透从而实现远程控制，我搭建了一个脚本来完成这件事件，但是考虑了安全性时又增加了很多保护，验证的工作，这增加了维护的工作量;</p>
+</li>
+<li><p>HA的一大优势是拥有非常多的插件，几乎任何常见的智能设备都能找到对应的插件。但是鉴于当时智能设备毫无统一标准，有些插件并不易用，甚至需要一定程度的hack才能将设备添加进HA，这个也增加了维护的成本;</p>
+</li>
+<li><p>对于我的目标而言，我有规划一套自己的IOT网络和网桥，它通过串口与Raspberry Pi相连，我会根据我自己的需要直接在网桥里面管理我的设备，我需要HA为我提供一套web&#x2F;app界面就足够了，HA我没有找到可以直接管理串口的插件，但是HA可以调用系统里面的程序或者python脚本，这样我的系统结构就变成了HA&lt;&#x3D;&#x3D;&#x3D;&#x3D;&gt;通信脚本&lt;–UART–&gt;Gateway, 这样就变成了一旦需要添加设备或者维护设备，就需要通过Web调整HA， 通过SSH连接RPi修改通信脚本，通过串口修改Gateway, 还是增加了维护成本;</p>
+</li>
+</ol>
+<p>各种原因的综合下，经过几年的使用HA逐渐被废弃。</p>
+<p>最近发现OpenHab提供了一些非常有意思的功能：</p>
+<ol>
+<li>HA同样提供了数量庞大的插件库;</li>
+<li>HA支持HA Cloud, 可以自己搭建也可以用官方推荐的免费云服务作为中专服务;</li>
+<li>HA支持串口设备，可以直接通过串口添加外部设备;<br>最后OH的安装过程也很友好。</li>
+</ol>
+<h1 id="OpenHab结构"><a href="#OpenHab结构" class="headerlink" title="OpenHab结构"></a>OpenHab结构</h1><p>刚开始接触OpenHab时，对其工作模型非常的迷惑，应该时为了追求灵活性的原因，OH提供了Things, Items, Channels这样的概念。这三者联合起来才组成一个完整的设备模型。从数据流的角度来思考，更像是Things-&gt;Channels-&gt;Items, 最终在UI上可以添加对应的Items，从而展示数据或者控制设备。<br>例如，一个Things::SerialDevice可以从串口收集数据，这些数据被送到一个Channel里面，完整对应的parser, 最终Items::Temerature这样的终端接受Channel里面的数据，并转换为对应的类型，如温度，湿度等等.</p>
+<h1 id="OpenHab-Serial-Device"><a href="#OpenHab-Serial-Device" class="headerlink" title="OpenHab Serial Device"></a>OpenHab Serial Device</h1><p>如果从数据流的角度去看，OH的串口设备时一种梳状结构：<br>    <div style="width:100%;margin:auto"><img src="/2022/04/15/openhab-serial/0.png" class="" title="OH-Seiral-Structure"></div><br>通过这种树状的级联配置，通过每一级的正则表达式筛选出想要的数据，最终完成同一个串口，分发不同的数据到不同的终端节点上。</p>
+<h1 id="配置Serial-Device"><a href="#配置Serial-Device" class="headerlink" title="配置Serial Device"></a>配置Serial Device</h1><ul>
+<li><p>在OH中最先需要定义的就是Serial Bridge, 这个节点负责与物理上的串口进行通信，其配置：</p>
+  <div style="width:100%;margin:auto"><img src="/2022/04/15/openhab-serial/1.png" class="" title="Serial Bridge"></div>
+</li>
+<li><p>创建最终的Item<br>  比如温度计，湿度计，开关等</p>
+  <div style="width:100%;margin:auto"><img src="/2022/04/15/openhab-serial/2.png" class=""></div>
+  
+<p>  配置Item, 主要是配置名称和类型，其他内容则不是那么重要</p>
+  <div style="width:100%;margin:auto"><img src="/2022/04/15/openhab-serial/3.png" class=""></div>
+</li>
+<li><p>在Things中创建Serial Device</p>
+  <div style="width:100%;margin:auto"><img src="/2022/04/15/openhab-serial/4.png" class=""></div>
+  
+<p>  修改配置，其中要把Bridge选择为刚创建的Serial Bridge，以便能从串口收发数据，Patern Match则根据需要修改，全匹配为.*</p>
+  <div style="width:100%;margin:auto"><img src="/2022/04/15/openhab-serial/5.png" class=""></div>
+</li>
+<li><p>在创建的Serial Device下面创建Channel<br>  创建Change时必须配置唯一的名称，在”State Transformation”中通过正则表达式过滤出目标数据， “Number Format”中格式化过滤后的数据：</p>
+  <div style="width:100%;margin:auto"><img src="/2022/04/15/openhab-serial/6.png" class=""></div>
 
+<p>  完成后通过”Add Link to Item..”从而链接到刚才创建的Item中，从而完成整条线路的配置</p>
+  <div style="width:100%;margin:auto"><img src="/2022/04/15/openhab-serial/7.png" class=""></div>
+</li>
+<li><p>链接Channel与Item<br>  选择”Use an existing Item”，在Item to Link中选择目标</p>
+  <div style="width:100%;margin:auto"><img src="/2022/04/15/openhab-serial/9.png" class=""></div>
+  <div style="width:100%;margin:auto"><img src="/2022/04/15/openhab-serial/10.png" class=""></div>
+  这个REGEX可以完成进一步的数据筛选，默认就是(.*),如果时需要Item获得小数点数据，比如温度这样的，可以使用 (\d*.\d*)
+</li>
+<li><p>特殊情况，比如开关作为串口输出设备，又是需要输出的内容带换行，但是界面提供的”On Value”和“Off Value”中都不能添加换行符，这种情况就需要在配置完成后，点击保存，然后切换到”Code”页面，在代码中中直接添加\n：</p>
+  <div style="width:100%;margin:auto"><img src="/2022/04/15/openhab-serial/8.png" class=""></div>
+</li>
+<li><p>添加到主界面<br>  在Page栏里面，可以修改页面布局，添加对应的Item到对应的位置，并修改图标等显示相关内容：</p>
+  <div style="width:100%;margin:auto"><img src="/2022/04/15/openhab-serial/11.png" class=""></div>
+  <div style="width:100%;margin:auto"><img src="/2022/04/15/openhab-serial/12.png" class=""></div></li>
+</ul>
 ]]></content>
       <categories>
         <category>DIY</category>
@@ -278,6 +332,7 @@
         <tag>ProjectReverie</tag>
         <tag>SmartHome</tag>
         <tag>OpenHab</tag>
+        <tag>Raspberry Pi</tag>
       </tags>
   </entry>
 </search>
