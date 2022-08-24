@@ -264,9 +264,11 @@
       </tags>
   </entry>
   <entry>
-    <title>openhab_serial</title>
+    <title>自定义OpenHab串口设备</title>
     <url>/2022/04/15/openhab-serial/</url>
     <content><![CDATA[<p>几年前用过一阵子HomeAssistant</p>
+<span id="more"></span>
+
 ]]></content>
       <categories>
         <category>DIY</category>
