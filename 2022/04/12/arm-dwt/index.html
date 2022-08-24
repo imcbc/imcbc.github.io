@@ -20,34 +20,42 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"imcbc.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.11.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="前一阵子在某芯片上遇到了一个设计问题：芯片中的控制核为ARM Cortex-M33内核（SSE200 IP），并在芯片中存在多个物理地址并不连续的SRAM，其中M33 Local Mem地址范围为0x2000_0000, 另一内存地址为0x41xx_xxxx.  遇到的具体问题为，在locam memory中，任何的非对齐访问全是正常的，但是在0x41xx_xxxx为基地址的内存上，任何非对齐的访">
+    <meta name="description" content="日常调试中，除了需要在指令执行上插入断点以进行跟踪或单步调试，在某些情况下，也需要跟踪数据变化并当某内存数据发生变化时产生断点。  这个功能在ARM Cortex-M33中，可以通过利用DWT实现。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="ARM Cortex M33非对齐访问">
-<meta property="og:url" content="https://imcbc.github.io/2022/04/10/cm33-uac/index.html">
+<meta property="og:title" content="ARM Cortex-M33数据断点和TRAP功能">
+<meta property="og:url" content="https://imcbc.github.io/2022/04/12/arm-dwt/index.html">
 <meta property="og:site_name" content="CBC Notes">
-<meta property="og:description" content="前一阵子在某芯片上遇到了一个设计问题：芯片中的控制核为ARM Cortex-M33内核（SSE200 IP），并在芯片中存在多个物理地址并不连续的SRAM，其中M33 Local Mem地址范围为0x2000_0000, 另一内存地址为0x41xx_xxxx.  遇到的具体问题为，在locam memory中，任何的非对齐访问全是正常的，但是在0x41xx_xxxx为基地址的内存上，任何非对齐的访">
+<meta property="og:description" content="日常调试中，除了需要在指令执行上插入断点以进行跟踪或单步调试，在某些情况下，也需要跟踪数据变化并当某内存数据发生变化时产生断点。  这个功能在ARM Cortex-M33中，可以通过利用DWT实现。">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://imcbc.github.io/2022/04/10/cm33-uac/cm33uac1.JPG">
-<meta property="og:image" content="https://imcbc.github.io/2022/04/10/cm33-uac/cm33uac2.JPG">
-<meta property="og:image" content="https://imcbc.github.io/2022/04/10/cm33-uac/cm33uac3.JPG">
-<meta property="article:published_time" content="2022-04-09T16:46:22.000Z">
-<meta property="article:modified_time" content="2022-04-10T05:36:55.080Z">
+<meta property="og:image" content="https://imcbc.github.io/2022/04/12/arm-dwt/dwt1.PNG">
+<meta property="og:image" content="https://imcbc.github.io/2022/04/12/arm-dwt/dwt2.PNG">
+<meta property="og:image" content="https://imcbc.github.io/2022/04/12/arm-dwt/dwt3.PNG">
+<meta property="og:image" content="https://imcbc.github.io/2022/04/12/arm-dwt/dwt4.PNG">
+<meta property="og:image" content="https://imcbc.github.io/2022/04/12/arm-dwt/dwt5.PNG">
+<meta property="og:image" content="https://imcbc.github.io/2022/04/12/arm-dwt/dwt6.PNG">
+<meta property="og:image" content="https://imcbc.github.io/2022/04/12/arm-dwt/dwt7.PNG">
+<meta property="og:image" content="https://imcbc.github.io/2022/04/12/arm-dwt/dwt8.PNG">
+<meta property="og:image" content="https://imcbc.github.io/2022/04/12/arm-dwt/dwt9.PNG">
+<meta property="og:image" content="https://imcbc.github.io/2022/04/12/arm-dwt/dwt10.PNG">
+<meta property="article:published_time" content="2022-04-12T06:33:03.000Z">
+<meta property="article:modified_time" content="2022-04-14T17:31:15.311Z">
 <meta property="article:author" content="IMCBC">
 <meta property="article:tag" content="ARM">
 <meta property="article:tag" content="嵌入式">
 <meta property="article:tag" content="Cortex-M33">
+<meta property="article:tag" content="调试">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://imcbc.github.io/2022/04/10/cm33-uac/cm33uac1.JPG">
+<meta name="twitter:image" content="https://imcbc.github.io/2022/04/12/arm-dwt/dwt1.PNG">
 
 
-<link rel="canonical" href="https://imcbc.github.io/2022/04/10/cm33-uac/">
+<link rel="canonical" href="https://imcbc.github.io/2022/04/12/arm-dwt/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://imcbc.github.io/2022/04/10/cm33-uac/","path":"2022/04/10/cm33-uac/","title":"ARM Cortex M33非对齐访问"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://imcbc.github.io/2022/04/12/arm-dwt/","path":"2022/04/12/arm-dwt/","title":"ARM Cortex-M33数据断点和TRAP功能"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>ARM Cortex M33非对齐访问 | CBC Notes</title>
+<title>ARM Cortex-M33数据断点和TRAP功能 | CBC Notes</title>
   
 
 
@@ -136,7 +144,7 @@
 
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           Table of Contents
@@ -149,6 +157,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%85%8D%E7%BD%AEDWT"><span class="nav-number">1.</span> <span class="nav-text">配置DWT</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%93%E5%BC%80DWT%E5%8A%9F%E8%83%BD"><span class="nav-number">1.0.1.</span> <span class="nav-text">打开DWT功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E6%AF%94%E8%BE%83%E5%99%A8"><span class="nav-number">1.0.2.</span> <span class="nav-text">配置比较器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E8%83%BD%E6%AF%94%E8%BE%83%E5%99%A8"><span class="nav-number">1.0.3.</span> <span class="nav-text">使能比较器</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8C%82%E8%BD%BD%E8%B0%83%E8%AF%95%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">挂载调试器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="nav-number">3.</span> <span class="nav-text">测试</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#TRAP"><span class="nav-number">4.</span> <span class="nav-text">TRAP</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -216,7 +225,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://imcbc.github.io/2022/04/10/cm33-uac/">
+    <link itemprop="mainEntityOfPage" href="https://imcbc.github.io/2022/04/12/arm-dwt/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -229,12 +238,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="ARM Cortex M33非对齐访问 | CBC Notes">
+      <meta itemprop="name" content="ARM Cortex-M33数据断点和TRAP功能 | CBC Notes">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          ARM Cortex M33非对齐访问
+          ARM Cortex-M33数据断点和TRAP功能
         </h1>
 
         <div class="post-meta-container">
@@ -244,9 +253,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
-      
 
-      <time title="Created: 2022-04-10 00:46:22 / Modified: 13:36:55" itemprop="dateCreated datePublished" datetime="2022-04-10T00:46:22+08:00">2022-04-10</time>
+      <time title="Created: 2022-04-12 14:33:03" itemprop="dateCreated datePublished" datetime="2022-04-12T14:33:03+08:00">2022-04-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-04-15 01:31:15" itemprop="dateModified" datetime="2022-04-15T01:31:15+08:00">2022-04-15</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -268,47 +283,52 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <p>前一阵子在某芯片上遇到了一个设计问题：芯片中的控制核为ARM Cortex-M33内核（SSE200 IP），并在芯片中存在多个物理地址并不连续的SRAM，其中M33 Local Mem地址范围为0x2000_0000, 另一内存地址为0x41xx_xxxx. </p>
-<p>遇到的具体问题为，在locam memory中，任何的非对齐访问全是正常的，但是在0x41xx_xxxx为基地址的内存上，任何非对齐的访问将会导致芯片卡死。</p>
+        <p>日常调试中，除了需要在指令执行上插入断点以进行跟踪或单步调试，在某些情况下，也需要跟踪数据变化并当某内存数据发生变化时产生断点。 </p>
+<p>这个功能在ARM Cortex-M33中，可以通过利用DWT实现。</p>
 <span id="more"></span>
 
-<p>后经过仿真分析发现，Cortex M33处理器，如果地址[31:29]为0或者1， arm在总线上会发出两个非对齐访问（胶水逻辑）， 但如果[31:29]为2，则没有非对齐访问的操作。</p>
-<p>后查找手册</p>
-<ul>
-<li><p>根据Cortex-M33 TRM r1p0 38页：<br>  对于Device类型的内存，不允许非对齐访问并会产生错误异常</p>
-<div style="width:100%;margin:auto"><img src="/2022/04/10/cm33-uac/cm33uac1.JPG" class="" title="CM33-TRM"></div>
-</li>
-<li><p>根据Cortex-M33 TRM r1p0 161页面：<br>  对于Device类型的内容，非对齐访问的结果为不可预测，在Cortex-M33上会禅城非对齐的UsageFault。这里面奇怪的是在此芯片上并未产生Usage Fault（可被捕获），而是完全停止响应，似乎更像陷入到不可预测的锁死窗台，似乎和IP的配置有关？</p>
-<div style="width:100%;margin:auto"><img src="/2022/04/10/cm33-uac/cm33uac2.JPG" class="" title="CM33-TRM2"></div>
-</li>
-<li><p>根据Armv8-M ARM(DDI0553 B.s), B7.11 Device memory:</p>
-<ul>
-<li>Device memory is a memory type that is assigned to regions of memory where accesses can have side effects.</li>
-<li>Device memory is not cacheable.</li>
-<li>…</li>
-<li>Any unaligned access to Device memory generates an UNALIGNED UsageFault exception</li>
-</ul>
-</li>
-</ul>
-<div class="note info"><p>至此，已经知道arm对于不同的memory type(Normal&#x2F;Device)使用了不同的访问逻辑， 那么对应到这个具体的出错案例，0x2000_xxxx 和 0x41xx_xxxx的memory type呢？</p>
+<h1 id="配置DWT"><a href="#配置DWT" class="headerlink" title="配置DWT"></a>配置DWT</h1><h3 id="打开DWT功能"><a href="#打开DWT功能" class="headerlink" title="打开DWT功能"></a>打开DWT功能</h3><p>在Secure模式下修改DEMCR(0xE000EDFC)寄存器中打开DWT功能:</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt1.PNG" class="" title="DEMCR"></div>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt2.PNG" class="" title="DEMCR_TRCENA"></div>
+
+<h3 id="配置比较器"><a href="#配置比较器" class="headerlink" title="配置比较器"></a>配置比较器</h3><p>回到Non-Secure下，修改DWT_COMP<n>寄存器，n的范围为硬件支持DWT比较器个数， DWT_COMP0的地址是0xE0001020，<br>在此寄存器中填入希望跟踪的地址，例如0x2800_8000：</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt3.PNG" class="" title="DWT_COMP0"></div>
+
+<p>DWT比较器可以跟踪多种类型，比如cycle count, PC地址，这里只关心Data Access:</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt4.PNG" class="" title="DWT_COMP0_DATA"></div>
+
+<h3 id="使能比较器"><a href="#使能比较器" class="headerlink" title="使能比较器"></a>使能比较器</h3><p>DWT_FUNCION<n>寄存器的基地址为0xE0001028, 内容如下：</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt5.PNG" class="" title="DWT_FUNC1"></div>
+其中，[31:27] ID位， [24] MATCHED位为只读
+
+<p>DATASIZE（此处配置为4BYTE）</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt6.PNG" class="" title="DWT_FUNC2"></div>
+
+<p>ACTION（此处配置为2’b01， Generate debug event)</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt7.PNG" class="" title="DWT_FUNC3"></div>
+
+<p>MATCH:<br>MATCH位较为复杂，具体参考armv8m-arm D2.2.62 DWT_FUNCTION<n>, 此处配置为4’b0101, 即Data Address Write</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt8.PNG" class="" title="DWT_FUNC4"></div>
+
+<p>最终DWT_FUNCTION0 &#x3D; 0x58000815</p>
+<h1 id="挂载调试器"><a href="#挂载调试器" class="headerlink" title="挂载调试器"></a>挂载调试器</h1><p>挂在GDB Server:</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt9.PNG" class="" title="JLINK_GDBSERVER"></div>
+
+<p>打开GDB Client 并继续程序</p>
+<blockquote>
+<p>target remote localhost:2331<br>monitor halt<br>info reg<br>c</p>
+</blockquote>
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>完成了DWT使能、DWT_COMP0、DWT_FUNCION0的配置后，如果有data access到测试地址0x2800_8000将会产生调试时间并被调试器捕获进而可以展开更多调试：</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt10.PNG" class="" title="Capture"></div>
+
+
+
+<h1 id="TRAP"><a href="#TRAP" class="headerlink" title="TRAP"></a>TRAP</h1><p>类似的， 既然ARM可以监测到数据变化并产生debug event, 那也是可以产生Debug Monitor Excpetion，从而不用调试器就可以拦截特定地址的数据访问或者指令访问。</p>
+<div class="note info"><p>这种在某些应用场合会非常的有帮助，比如无法一直挂在调试器，又或者当部分代码是按照lib的形式存储在ROM上，而随着软件的升级部分功能需要替换，或者ROM上的代码有部分bug, 为了不完全替换ROM code(可能会浪费大量内存)， 可以把需要替换的代码的入口地址加入监视目标，当程序跳转此处时产生中断，打断当前执行并进行替换。通常此类操作为TRAP &amp; CATCH。</p>
 </div>
 
-
-<ul>
-<li>根据Armv8-M ARM, B8.1 System address map:<div style="width:100%;margin:auto"><img src="/2022/04/10/cm33-uac/cm33uac3.JPG" class="" title="CM33-ARM1"></div></li>
-</ul>
-<p>所以，0x41xx_xxxx在CM33下默认映射就是Device类型的访问，其根本不支持非对齐访问，这也正是这个问题的根源。</p>
-<p>那么ARM为什么要这么约束呢？</p>
-<p>根据AMBA总线AHB协议中地址的限定，其支持单字节，双字节，四字节的地址类型，双字节时，HADDR[0]&#x3D;1’b0, 四字节时，HADDR[1:0]&#x3D;2’b00。所以，当CPU遇到指令集发出非对齐访的ld&#x2F;st时，那么就遇到了第一个问题：是否原封不动的发出总线请求：</p>
-<ul>
-<li>如果原封不动的发出请求，则违反总线协议</li>
-<li>如果在处理器外围增加胶水逻辑，负责拆分非对齐的总线请求，这样能做到对软件透明，但是会遇到另外一个问题：这个拆分对软件并不透明，对于外设寄存器这样的类型的访问，被拆分成两次以上独立的访问有可能与硬件的规划是冲突的，比如利用非对齐地址更改Bit8和Bit4, 加入硬件期待的时这两个Bit同时置位，但CPU却因为非对齐地址的问题这两个比特的更新被拆分为了两次操作完成，而这样的操作是软件、调试器不可感知的。</li>
-</ul>
-<div class="note info"><p>通过这样限定内存地址类型来调整CPU的行为似乎就显得非常合理了，SRAM类型的就为了满足软件的自由度可以进行自由拆分，而外设类型的地址访问，则考虑到某些硬件外设的特殊时许要求，则需要保持“as-is”这样的逻辑。</p>
-</div>
-
-<p>那么，这次遇到的0x41xx_xxxx地址的内存，其实也属于SoC架构的小疏忽了，不应该让一个SRAM类型的地址被映射到0x4xxx_xxxx这样的地址范围上，从而让ARM认为这是个Device, 而非SRAM。</p>
-<p>而问题的修补办法只有软件限制非对齐访问，当然这样的访问也并非全是坏事：可以减少非对齐访问导致增加的额外周期，提高CPU对内存访问效率。</p>
+<p>而使用方法则非常简单，在前面提到的DEMCR寄存器[16]位MON_EN置位为1即可，如果有对应地址或者指令的访问，Secure端的Debug Monitor Exception将会执行。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">CoreDebug-&gt;DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;</span><br><span class="line">CoreDebug-&gt;DEMCR |= CoreDebug_DEMCR_MON_EN_Msk;</span><br><span class="line">DWT-&gt;CTRL |= DWT_CTRL_CYCCNTENA_Msk;</span><br><span class="line">DWT-&gt;CYCCNT = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
 
     </div>
 
@@ -326,7 +346,7 @@
   </li>
   <li class="post-copyright-link">
       <strong>Post link: </strong>
-      <a href="https://imcbc.github.io/2022/04/10/cm33-uac/" title="ARM Cortex M33非对齐访问">https://imcbc.github.io/2022/04/10/cm33-uac/</a>
+      <a href="https://imcbc.github.io/2022/04/12/arm-dwt/" title="ARM Cortex-M33数据断点和TRAP功能">https://imcbc.github.io/2022/04/12/arm-dwt/</a>
   </li>
   <li class="post-copyright-license">
     <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC</a> unless stating additionally.
@@ -338,19 +358,20 @@
               <a href="/tags/ARM/" rel="tag"># ARM</a>
               <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag"># 嵌入式</a>
               <a href="/tags/Cortex-M33/" rel="tag"># Cortex-M33</a>
+              <a href="/tags/%E8%B0%83%E8%AF%95/" rel="tag"># 调试</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2022/04/09/airprobe/" rel="prev" title="AirProbe">
-                  <i class="fa fa-chevron-left"></i> AirProbe
+                <a href="/2022/04/10/cm33-uac/" rel="prev" title="ARM Cortex M33非对齐访问">
+                  <i class="fa fa-chevron-left"></i> ARM Cortex M33非对齐访问
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2022/04/12/arm-dwt/" rel="next" title="ARM Cortex-M33数据断点和TRAP功能">
-                  ARM Cortex-M33数据断点和TRAP功能 <i class="fa fa-chevron-right"></i>
+                <a href="/2022/04/15/openhab-serial/" rel="next" title="openhab_serial">
+                  openhab_serial <i class="fa fa-chevron-right"></i>
                 </a>
             </div>
           </div>

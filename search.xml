@@ -203,4 +203,79 @@
         <tag>调试</tag>
       </tags>
   </entry>
+  <entry>
+    <title>ARM Cortex-M33数据断点和TRAP功能</title>
+    <url>/2022/04/12/arm-dwt/</url>
+    <content><![CDATA[<p>日常调试中，除了需要在指令执行上插入断点以进行跟踪或单步调试，在某些情况下，也需要跟踪数据变化并当某内存数据发生变化时产生断点。 </p>
+<p>这个功能在ARM Cortex-M33中，可以通过利用DWT实现。</p>
+<span id="more"></span>
+
+<h1 id="配置DWT"><a href="#配置DWT" class="headerlink" title="配置DWT"></a>配置DWT</h1><h3 id="打开DWT功能"><a href="#打开DWT功能" class="headerlink" title="打开DWT功能"></a>打开DWT功能</h3><p>在Secure模式下修改DEMCR(0xE000EDFC)寄存器中打开DWT功能:</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt1.PNG" class="" title="DEMCR"></div>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt2.PNG" class="" title="DEMCR_TRCENA"></div>
+
+<h3 id="配置比较器"><a href="#配置比较器" class="headerlink" title="配置比较器"></a>配置比较器</h3><p>回到Non-Secure下，修改DWT_COMP<n>寄存器，n的范围为硬件支持DWT比较器个数， DWT_COMP0的地址是0xE0001020，<br>在此寄存器中填入希望跟踪的地址，例如0x2800_8000：</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt3.PNG" class="" title="DWT_COMP0"></div>
+
+<p>DWT比较器可以跟踪多种类型，比如cycle count, PC地址，这里只关心Data Access:</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt4.PNG" class="" title="DWT_COMP0_DATA"></div>
+
+<h3 id="使能比较器"><a href="#使能比较器" class="headerlink" title="使能比较器"></a>使能比较器</h3><p>DWT_FUNCION<n>寄存器的基地址为0xE0001028, 内容如下：</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt5.PNG" class="" title="DWT_FUNC1"></div>
+其中，[31:27] ID位， [24] MATCHED位为只读
+
+<p>DATASIZE（此处配置为4BYTE）</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt6.PNG" class="" title="DWT_FUNC2"></div>
+
+<p>ACTION（此处配置为2’b01， Generate debug event)</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt7.PNG" class="" title="DWT_FUNC3"></div>
+
+<p>MATCH:<br>MATCH位较为复杂，具体参考armv8m-arm D2.2.62 DWT_FUNCTION<n>, 此处配置为4’b0101, 即Data Address Write</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt8.PNG" class="" title="DWT_FUNC4"></div>
+
+<p>最终DWT_FUNCTION0 &#x3D; 0x58000815</p>
+<h1 id="挂载调试器"><a href="#挂载调试器" class="headerlink" title="挂载调试器"></a>挂载调试器</h1><p>挂在GDB Server:</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt9.PNG" class="" title="JLINK_GDBSERVER"></div>
+
+<p>打开GDB Client 并继续程序</p>
+<blockquote>
+<p>target remote localhost:2331<br>monitor halt<br>info reg<br>c</p>
+</blockquote>
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>完成了DWT使能、DWT_COMP0、DWT_FUNCION0的配置后，如果有data access到测试地址0x2800_8000将会产生调试时间并被调试器捕获进而可以展开更多调试：</p>
+<div style="width:100%;margin:auto"><img src="/2022/04/12/arm-dwt/dwt10.PNG" class="" title="Capture"></div>
+
+
+
+<h1 id="TRAP"><a href="#TRAP" class="headerlink" title="TRAP"></a>TRAP</h1><p>类似的， 既然ARM可以监测到数据变化并产生debug event, 那也是可以产生Debug Monitor Excpetion，从而不用调试器就可以拦截特定地址的数据访问或者指令访问。</p>
+<div class="note info"><p>这种在某些应用场合会非常的有帮助，比如无法一直挂在调试器，又或者当部分代码是按照lib的形式存储在ROM上，而随着软件的升级部分功能需要替换，或者ROM上的代码有部分bug, 为了不完全替换ROM code(可能会浪费大量内存)， 可以把需要替换的代码的入口地址加入监视目标，当程序跳转此处时产生中断，打断当前执行并进行替换。通常此类操作为TRAP &amp; CATCH。</p>
+</div>
+
+<p>而使用方法则非常简单，在前面提到的DEMCR寄存器[16]位MON_EN置位为1即可，如果有对应地址或者指令的访问，Secure端的Debug Monitor Exception将会执行。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">CoreDebug-&gt;DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;</span><br><span class="line">CoreDebug-&gt;DEMCR |= CoreDebug_DEMCR_MON_EN_Msk;</span><br><span class="line">DWT-&gt;CTRL |= DWT_CTRL_CYCCNTENA_Msk;</span><br><span class="line">DWT-&gt;CYCCNT = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>SoC Design</category>
+      </categories>
+      <tags>
+        <tag>ARM</tag>
+        <tag>嵌入式</tag>
+        <tag>Cortex-M33</tag>
+        <tag>调试</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>openhab_serial</title>
+    <url>/2022/04/15/openhab-serial/</url>
+    <content><![CDATA[<p>几年前用过一阵子HomeAssistant</p>
+]]></content>
+      <categories>
+        <category>DIY</category>
+      </categories>
+      <tags>
+        <tag>PetProjects</tag>
+        <tag>ProjectReverie</tag>
+        <tag>SmartHome</tag>
+        <tag>OpenHab</tag>
+      </tags>
+  </entry>
 </search>
