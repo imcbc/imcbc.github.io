@@ -41,7 +41,7 @@
 <meta property="og:image" content="https://imcbc.github.io/2022/04/15/openhab-serial/11.png">
 <meta property="og:image" content="https://imcbc.github.io/2022/04/15/openhab-serial/12.png">
 <meta property="article:published_time" content="2022-04-14T17:32:02.000Z">
-<meta property="article:modified_time" content="2022-08-24T18:05:07.690Z">
+<meta property="article:modified_time" content="2022-08-24T18:10:52.179Z">
 <meta property="article:author" content="IMCBC">
 <meta property="article:tag" content="PetProjects">
 <meta property="article:tag" content="ProjectReverie">
@@ -174,13 +174,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-count">6</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -265,7 +265,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-08-25 02:05:07" itemprop="dateModified" datetime="2022-08-25T02:05:07+08:00">2022-08-25</time>
+      <time title="Modified: 2022-08-25 02:10:52" itemprop="dateModified" datetime="2022-08-25T02:10:52+08:00">2022-08-25</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -298,7 +298,7 @@
 </li>
 <li><p>HA的一大优势是拥有非常多的插件，几乎任何常见的智能设备都能找到对应的插件。但是鉴于当时智能设备毫无统一标准，有些插件并不易用，甚至需要一定程度的hack才能将设备添加进HA，这个也增加了维护的成本;</p>
 </li>
-<li><p>对于我的目标而言，我有规划一套自己的IOT网络和网桥，它通过串口与Raspberry Pi相连，我会根据我自己的需要直接在网桥里面管理我的设备，我需要HA为我提供一套web&#x2F;app界面就足够了，HA我没有找到可以直接管理串口的插件，但是HA可以调用系统里面的程序或者python脚本，这样我的系统结构就变成了HA&lt;&#x3D;&#x3D;&#x3D;&#x3D;&gt;通信脚本&lt;–UART–&gt;Gateway, 这样就变成了一旦需要添加设备或者维护设备，就需要通过Web调整HA， 通过SSH连接RPi修改通信脚本，通过串口修改Gateway, 还是增加了维护成本;</p>
+<li><p>而我的需求则是，需要搭建一套自己的IOT网络，它通过串口与Raspberry Pi相连，可以直接在网桥里面管理设备，HA提供一套web&#x2F;app界面，然而在HA中我没有找到可以直接管理串口的插件，但是HA可以调用系统里面的程序或者python脚本（相当于Terminal管道？），但是这样会导致系统结构就变成了HA&lt;&#x3D;&#x3D;&#x3D;&#x3D;&gt;通信脚本&lt;–UART–&gt;Gateway, 从而导致一旦需要添加或者维护设备，就需要通过Web调整HA，通过SSH连接RPi修改通信脚本，通过串口修改Gateway, 进一步增加了维护成本;</p>
 </li>
 </ol>
 <p>各种原因的综合下，经过几年的使用HA逐渐被废弃。</p>
@@ -386,6 +386,9 @@
                 </a>
             </div>
             <div class="post-nav-item">
+                <a href="/2022/09/12/MSP430-BSL-DEBUG/" rel="next" title="MSP430_BSL_DEBUG">
+                  MSP430_BSL_DEBUG <i class="fa fa-chevron-right"></i>
+                </a>
             </div>
           </div>
     </footer>

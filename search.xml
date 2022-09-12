@@ -277,7 +277,7 @@
 </li>
 <li><p>HA的一大优势是拥有非常多的插件，几乎任何常见的智能设备都能找到对应的插件。但是鉴于当时智能设备毫无统一标准，有些插件并不易用，甚至需要一定程度的hack才能将设备添加进HA，这个也增加了维护的成本;</p>
 </li>
-<li><p>对于我的目标而言，我有规划一套自己的IOT网络和网桥，它通过串口与Raspberry Pi相连，我会根据我自己的需要直接在网桥里面管理我的设备，我需要HA为我提供一套web&#x2F;app界面就足够了，HA我没有找到可以直接管理串口的插件，但是HA可以调用系统里面的程序或者python脚本，这样我的系统结构就变成了HA&lt;&#x3D;&#x3D;&#x3D;&#x3D;&gt;通信脚本&lt;–UART–&gt;Gateway, 这样就变成了一旦需要添加设备或者维护设备，就需要通过Web调整HA， 通过SSH连接RPi修改通信脚本，通过串口修改Gateway, 还是增加了维护成本;</p>
+<li><p>而我的需求则是，需要搭建一套自己的IOT网络，它通过串口与Raspberry Pi相连，可以直接在网桥里面管理设备，HA提供一套web&#x2F;app界面，然而在HA中我没有找到可以直接管理串口的插件，但是HA可以调用系统里面的程序或者python脚本（相当于Terminal管道？），但是这样会导致系统结构就变成了HA&lt;&#x3D;&#x3D;&#x3D;&#x3D;&gt;通信脚本&lt;–UART–&gt;Gateway, 从而导致一旦需要添加或者维护设备，就需要通过Web调整HA，通过SSH连接RPi修改通信脚本，通过串口修改Gateway, 进一步增加了维护成本;</p>
 </li>
 </ol>
 <p>各种原因的综合下，经过几年的使用HA逐渐被废弃。</p>
@@ -333,6 +333,50 @@
         <tag>SmartHome</tag>
         <tag>OpenHab</tag>
         <tag>Raspberry Pi</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>MSP430_BSL_DEBUG</title>
+    <url>/2022/09/12/MSP430-BSL-DEBUG/</url>
+    <content><![CDATA[<h1 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h1><p>中秋节在家，想起来MSP430系列的芯片ISP模式还没有使用过，好奇其工具链的配套的完善程度和具体的使用流程，就打算用手上的MSP430F2272来尝试一下。<br>理想中，使用ISP的好处：</p>
+<ol>
+<li>一个完整的产品不应该以JTAG为下载方式，就连自己的Pet Projects做完了以后，如果有设计或者使用外壳的情况，用JTAG下载也是极为不方便的，需要拆解外壳连接调试器。 </li>
+<li>MSP430F2272的JTAG与ARM Cortex-M家族的SWD不同，需要至少8个PIN：<blockquote>
+<p>   Vref, GND, TEST, NRST, TCK, TMS, TDI, TDO<br> 如果采用标准的2.54mm座子则非常占用电路板体积</p>
+</blockquote>
+</li>
+</ol>
+<p>常见的SoC厂商，都会在SoC的ROM（第一级引导程序）中加入ISP模式，可以通过一些简单接口就能完成固件的烧写，比如我们最近设计的芯片的ROM中就是以I2C为接口提供ISP的。所以MSP430也一定会有类似的功能。</p>
+<span id="more"></span>
+
+<h1 id="BSL"><a href="#BSL" class="headerlink" title="BSL"></a>BSL</h1><p>简单的搜索后得知，TI的给自己的MSP430起了一个不太一样的名字：BSL，二者都是一个意思，名字不同而已。<br>查找F2272 UG得到了一个用户指引教程<a href="https://www.ti.com/lit/ug/slau319ae/slau319ae.pdf?ts=1662983245041">SLAU319</a> 查表就知道F2272支持UART下载。<br>    <div style="width:80%;margin:auto"><img src="/2022/09/12/MSP430-BSL-DEBUG/0.JPG" class=""></div></p>
+<h1 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h1><p>经过调查，BSL的工具大概有几个：</p>
+<ol>
+<li>MSP-FET，非常早期的GUI工具</li>
+<li>MSP-FLASHER， 命令行模式的工具</li>
+<li>MSP-GANG， 应该时面向批量编程的</li>
+<li>UniFlash， 应该时TI想要打造的通用Flash下载程序</li>
+</ol>
+<p>本来打算就用UniFlash就足够了，支持F2272， 支持第三方串口模块，但是没想到后面遇到了几个坑，最后把上面几个工具都下载并尝试了一番..但是最后还是用UniFlash成功了。</p>
+<p>吐槽一下其他几个工具：<br>MSP-FLASHER, 命令行中允许执行 -i TIUSB | COMn | .., 连接上串口后执行 -i COM2后程序还是会自动尝试寻找USBFET, 没有不行..</p>
+<p>MSP-GANG，打开了以后使用串口模式，永远只和COM1通信，COM2被你吃了么..</p>
+<h1 id="UniFlash"><a href="#UniFlash" class="headerlink" title="UniFlash"></a>UniFlash</h1><p>打开UniFlash界面后，发现了两个问题：</p>
+<ol>
+<li>烧写的文件用的时.txt或者.hex, CCS默认的格式时ELF(.out)</li>
+<li>ISP模式并不是只用UART就可以了，需要串口模块DTR和RTS： <div style="width:100%;margin:auto"><img src="/2022/09/12/MSP430-BSL-DEBUG/1.JPG" class=""></div>
+ 也就是DTR<--->NRST,  RTS<--->TEST</li>
+</ol>
+<p>第二个问题好办，把串口模块的DTR和RTS接出来就好，CP2102芯片是支持UART硬件流控的，第一问题，应该会有两种解决方案：用某种工具转换（TI或者第三方的）， 或者在工程中可能提供了编译链接后可以选择类似GNU下objcopy这样的功能，打开CCS寻找，还真有：<br>    <div style="width:100%;margin:auto"><img src="/2022/09/12/MSP430-BSL-DEBUG/2.JPG" class=""></div><br>    <div style="width:100%;margin:auto"><img src="/2022/09/12/MSP430-BSL-DEBUG/3.JPG" class=""></div><br>在output format中还有很多种格式选择，UniFlash也没有具体提到需要哪种具体格式的，因为没有什么时间慢慢看文档研究了，凭感觉试了两种，最后发现TI-TXT格式可行（TI全家桶么）<br>    <div style="width:100%;margin:auto"><img src="/2022/09/12/MSP430-BSL-DEBUG/4.JPG" class=""></div></p>
+<p>生成好.txt后UniFlash中配置串口和波特率，点击“Load Image”提示失败，内容大概是目标设备无响应，检查了连线，按照提示反复掉电上电都没有作用。最后还是花了点时间最后弄明白了，MSP430F2272中BSL用的串口，和片内外设中提供的UART，并不一样！<br>    F2272中用的是P1.1和P2.2<br>    <div style="width:100%;margin:auto"><img src="/2022/09/12/MSP430-BSL-DEBUG/5.JPG" class=""></div><br>    而P1.1和P2.2的具体功能是<br>    <div style="width:100%;margin:auto"><img src="/2022/09/12/MSP430-BSL-DEBUG/6.JPG" class=""></div><br>    <div style="width:100%;margin:auto"><img src="/2022/09/12/MSP430-BSL-DEBUG/7.JPG" class=""></div></p>
+<p>飞线后，仍然提示失败，但是错误内容不一样了，日志内容也明显是有通信和握手了，说明软件和芯片已经能正常通信了。最后重新掉电上电后再次尝试，提示成功！<br>    <div style="width:100%;margin:auto"><img src="/2022/09/12/MSP430-BSL-DEBUG/8.JPG" class=""></div></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>总体来说，TI BSL相比于JTAG，在节约PIN脚上优势并不显著，仍然需要：GND，NRST，TEST，BSL-Tx, BSL-Rx五个，比前面提到的JTAG少了三个引脚，而且整体易用度上也比不上STM32的ISP和PiPico的DFU，不过依然可以搭载一个外部的USB-UART桥来完成相对完整的ISP功能，避免了在作品完成后每次需要更新固件都需要拆外壳，拆设备的尴尬。</p>
+]]></content>
+      <categories>
+        <category>Debug</category>
+      </categories>
+      <tags>
+        <tag>嵌入式</tag>
+        <tag>调试</tag>
       </tags>
   </entry>
 </search>

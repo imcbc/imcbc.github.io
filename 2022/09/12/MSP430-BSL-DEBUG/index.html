@@ -20,34 +20,39 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"imcbc.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.11.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="前一阵子在某芯片上遇到了一个设计问题：芯片中的控制核为ARM Cortex-M33内核（SSE200 IP），并在芯片中存在多个物理地址并不连续的SRAM，其中M33 Local Mem地址范围为0x2000_0000, 另一内存地址为0x41xx_xxxx.  遇到的具体问题为，在locam memory中，任何的非对齐访问全是正常的，但是在0x41xx_xxxx为基地址的内存上，任何非对齐的访">
+    <meta name="description" content="目标中秋节在家，想起来MSP430系列的芯片ISP模式还没有使用过，好奇其工具链的配套的完善程度和具体的使用流程，就打算用手上的MSP430F2272来尝试一下。理想中，使用ISP的好处：  一个完整的产品不应该以JTAG为下载方式，就连自己的Pet Projects做完了以后，如果有设计或者使用外壳的情况，用JTAG下载也是极为不方便的，需要拆解外壳连接调试器。  MSP430F2272的JTA">
 <meta property="og:type" content="article">
-<meta property="og:title" content="ARM Cortex M33非对齐访问">
-<meta property="og:url" content="https://imcbc.github.io/2022/04/10/cm33-uac/index.html">
+<meta property="og:title" content="MSP430_BSL_DEBUG">
+<meta property="og:url" content="https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/index.html">
 <meta property="og:site_name" content="CBC Notes">
-<meta property="og:description" content="前一阵子在某芯片上遇到了一个设计问题：芯片中的控制核为ARM Cortex-M33内核（SSE200 IP），并在芯片中存在多个物理地址并不连续的SRAM，其中M33 Local Mem地址范围为0x2000_0000, 另一内存地址为0x41xx_xxxx.  遇到的具体问题为，在locam memory中，任何的非对齐访问全是正常的，但是在0x41xx_xxxx为基地址的内存上，任何非对齐的访">
+<meta property="og:description" content="目标中秋节在家，想起来MSP430系列的芯片ISP模式还没有使用过，好奇其工具链的配套的完善程度和具体的使用流程，就打算用手上的MSP430F2272来尝试一下。理想中，使用ISP的好处：  一个完整的产品不应该以JTAG为下载方式，就连自己的Pet Projects做完了以后，如果有设计或者使用外壳的情况，用JTAG下载也是极为不方便的，需要拆解外壳连接调试器。  MSP430F2272的JTA">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://imcbc.github.io/2022/04/10/cm33-uac/cm33uac1.JPG">
-<meta property="og:image" content="https://imcbc.github.io/2022/04/10/cm33-uac/cm33uac2.JPG">
-<meta property="og:image" content="https://imcbc.github.io/2022/04/10/cm33-uac/cm33uac3.JPG">
-<meta property="article:published_time" content="2022-04-09T16:46:22.000Z">
-<meta property="article:modified_time" content="2022-04-10T05:36:55.080Z">
+<meta property="og:image" content="https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/0.JPG">
+<meta property="og:image" content="https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/1.JPG">
+<meta property="og:image" content="https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/2.JPG">
+<meta property="og:image" content="https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/3.JPG">
+<meta property="og:image" content="https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/4.JPG">
+<meta property="og:image" content="https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/5.JPG">
+<meta property="og:image" content="https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/6.JPG">
+<meta property="og:image" content="https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/7.JPG">
+<meta property="og:image" content="https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/8.JPG">
+<meta property="article:published_time" content="2022-09-12T13:27:07.000Z">
+<meta property="article:modified_time" content="2022-09-12T14:37:07.431Z">
 <meta property="article:author" content="IMCBC">
-<meta property="article:tag" content="ARM">
 <meta property="article:tag" content="嵌入式">
-<meta property="article:tag" content="Cortex-M33">
+<meta property="article:tag" content="调试">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://imcbc.github.io/2022/04/10/cm33-uac/cm33uac1.JPG">
+<meta name="twitter:image" content="https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/0.JPG">
 
 
-<link rel="canonical" href="https://imcbc.github.io/2022/04/10/cm33-uac/">
+<link rel="canonical" href="https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://imcbc.github.io/2022/04/10/cm33-uac/","path":"2022/04/10/cm33-uac/","title":"ARM Cortex M33非对齐访问"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/","path":"2022/09/12/MSP430-BSL-DEBUG/","title":"MSP430_BSL_DEBUG"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>ARM Cortex M33非对齐访问 | CBC Notes</title>
+<title>MSP430_BSL_DEBUG | CBC Notes</title>
   
 
 
@@ -136,7 +141,7 @@
 
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           Table of Contents
@@ -149,6 +154,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87"><span class="nav-number">1.</span> <span class="nav-text">目标</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BSL"><span class="nav-number">2.</span> <span class="nav-text">BSL</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B7%A5%E5%85%B7"><span class="nav-number">3.</span> <span class="nav-text">工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#UniFlash"><span class="nav-number">4.</span> <span class="nav-text">UniFlash</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -216,7 +222,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://imcbc.github.io/2022/04/10/cm33-uac/">
+    <link itemprop="mainEntityOfPage" href="https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -229,12 +235,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="ARM Cortex M33非对齐访问 | CBC Notes">
+      <meta itemprop="name" content="MSP430_BSL_DEBUG | CBC Notes">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          ARM Cortex M33非对齐访问
+          MSP430_BSL_DEBUG
         </h1>
 
         <div class="post-meta-container">
@@ -246,7 +252,7 @@
       <span class="post-meta-item-text">Posted on</span>
       
 
-      <time title="Created: 2022-04-10 00:46:22 / Modified: 13:36:55" itemprop="dateCreated datePublished" datetime="2022-04-10T00:46:22+08:00">2022-04-10</time>
+      <time title="Created: 2022-09-12 21:27:07 / Modified: 22:37:07" itemprop="dateCreated datePublished" datetime="2022-09-12T21:27:07+08:00">2022-09-12</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -254,7 +260,7 @@
       </span>
       <span class="post-meta-item-text">In</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/SoC-Design/" itemprop="url" rel="index"><span itemprop="name">SoC Design</span></a>
+          <a href="/categories/Debug/" itemprop="url" rel="index"><span itemprop="name">Debug</span></a>
         </span>
     </span>
 
@@ -268,47 +274,38 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <p>前一阵子在某芯片上遇到了一个设计问题：芯片中的控制核为ARM Cortex-M33内核（SSE200 IP），并在芯片中存在多个物理地址并不连续的SRAM，其中M33 Local Mem地址范围为0x2000_0000, 另一内存地址为0x41xx_xxxx. </p>
-<p>遇到的具体问题为，在locam memory中，任何的非对齐访问全是正常的，但是在0x41xx_xxxx为基地址的内存上，任何非对齐的访问将会导致芯片卡死。</p>
+        <h1 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h1><p>中秋节在家，想起来MSP430系列的芯片ISP模式还没有使用过，好奇其工具链的配套的完善程度和具体的使用流程，就打算用手上的MSP430F2272来尝试一下。<br>理想中，使用ISP的好处：</p>
+<ol>
+<li>一个完整的产品不应该以JTAG为下载方式，就连自己的Pet Projects做完了以后，如果有设计或者使用外壳的情况，用JTAG下载也是极为不方便的，需要拆解外壳连接调试器。 </li>
+<li>MSP430F2272的JTAG与ARM Cortex-M家族的SWD不同，需要至少8个PIN：<blockquote>
+<p>   Vref, GND, TEST, NRST, TCK, TMS, TDI, TDO<br> 如果采用标准的2.54mm座子则非常占用电路板体积</p>
+</blockquote>
+</li>
+</ol>
+<p>常见的SoC厂商，都会在SoC的ROM（第一级引导程序）中加入ISP模式，可以通过一些简单接口就能完成固件的烧写，比如我们最近设计的芯片的ROM中就是以I2C为接口提供ISP的。所以MSP430也一定会有类似的功能。</p>
 <span id="more"></span>
 
-<p>后经过仿真分析发现，Cortex M33处理器，如果地址[31:29]为0或者1， arm在总线上会发出两个非对齐访问（胶水逻辑）， 但如果[31:29]为2，则没有非对齐访问的操作。</p>
-<p>后查找手册</p>
-<ul>
-<li><p>根据Cortex-M33 TRM r1p0 38页：<br>  对于Device类型的内存，不允许非对齐访问并会产生错误异常</p>
-<div style="width:100%;margin:auto"><img src="/2022/04/10/cm33-uac/cm33uac1.JPG" class="" title="CM33-TRM"></div>
-</li>
-<li><p>根据Cortex-M33 TRM r1p0 161页面：<br>  对于Device类型的内容，非对齐访问的结果为不可预测，在Cortex-M33上会禅城非对齐的UsageFault。这里面奇怪的是在此芯片上并未产生Usage Fault（可被捕获），而是完全停止响应，似乎更像陷入到不可预测的锁死窗台，似乎和IP的配置有关？</p>
-<div style="width:100%;margin:auto"><img src="/2022/04/10/cm33-uac/cm33uac2.JPG" class="" title="CM33-TRM2"></div>
-</li>
-<li><p>根据Armv8-M ARM(DDI0553 B.s), B7.11 Device memory:</p>
-<ul>
-<li>Device memory is a memory type that is assigned to regions of memory where accesses can have side effects.</li>
-<li>Device memory is not cacheable.</li>
-<li>…</li>
-<li>Any unaligned access to Device memory generates an UNALIGNED UsageFault exception</li>
-</ul>
-</li>
-</ul>
-<div class="note info"><p>至此，已经知道arm对于不同的memory type(Normal&#x2F;Device)使用了不同的访问逻辑， 那么对应到这个具体的出错案例，0x2000_xxxx 和 0x41xx_xxxx的memory type呢？</p>
-</div>
-
-
-<ul>
-<li>根据Armv8-M ARM, B8.1 System address map:<div style="width:100%;margin:auto"><img src="/2022/04/10/cm33-uac/cm33uac3.JPG" class="" title="CM33-ARM1"></div></li>
-</ul>
-<p>所以，0x41xx_xxxx在CM33下默认映射就是Device类型的访问，其根本不支持非对齐访问，这也正是这个问题的根源。</p>
-<p>那么ARM为什么要这么约束呢？</p>
-<p>根据AMBA总线AHB协议中地址的限定，其支持单字节，双字节，四字节的地址类型，双字节时，HADDR[0]&#x3D;1’b0, 四字节时，HADDR[1:0]&#x3D;2’b00。所以，当CPU遇到指令集发出非对齐访的ld&#x2F;st时，那么就遇到了第一个问题：是否原封不动的发出总线请求：</p>
-<ul>
-<li>如果原封不动的发出请求，则违反总线协议</li>
-<li>如果在处理器外围增加胶水逻辑，负责拆分非对齐的总线请求，这样能做到对软件透明，但是会遇到另外一个问题：这个拆分对软件并不透明，对于外设寄存器这样的类型的访问，被拆分成两次以上独立的访问有可能与硬件的规划是冲突的，比如利用非对齐地址更改Bit8和Bit4, 加入硬件期待的时这两个Bit同时置位，但CPU却因为非对齐地址的问题这两个比特的更新被拆分为了两次操作完成，而这样的操作是软件、调试器不可感知的。</li>
-</ul>
-<div class="note info"><p>通过这样限定内存地址类型来调整CPU的行为似乎就显得非常合理了，SRAM类型的就为了满足软件的自由度可以进行自由拆分，而外设类型的地址访问，则考虑到某些硬件外设的特殊时许要求，则需要保持“as-is”这样的逻辑。</p>
-</div>
-
-<p>那么，这次遇到的0x41xx_xxxx地址的内存，其实也属于SoC架构的小疏忽了，不应该让一个SRAM类型的地址被映射到0x4xxx_xxxx这样的地址范围上，从而让ARM认为这是个Device, 而非SRAM。</p>
-<p>而问题的修补办法只有软件限制非对齐访问，当然这样的访问也并非全是坏事：可以减少非对齐访问导致增加的额外周期，提高CPU对内存访问效率。</p>
+<h1 id="BSL"><a href="#BSL" class="headerlink" title="BSL"></a>BSL</h1><p>简单的搜索后得知，TI的给自己的MSP430起了一个不太一样的名字：BSL，二者都是一个意思，名字不同而已。<br>查找F2272 UG得到了一个用户指引教程<a target="_blank" rel="noopener" href="https://www.ti.com/lit/ug/slau319ae/slau319ae.pdf?ts=1662983245041">SLAU319</a> 查表就知道F2272支持UART下载。<br>    <div style="width:80%;margin:auto"><img src="/2022/09/12/MSP430-BSL-DEBUG/0.JPG" class=""></div></p>
+<h1 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h1><p>经过调查，BSL的工具大概有几个：</p>
+<ol>
+<li>MSP-FET，非常早期的GUI工具</li>
+<li>MSP-FLASHER， 命令行模式的工具</li>
+<li>MSP-GANG， 应该时面向批量编程的</li>
+<li>UniFlash， 应该时TI想要打造的通用Flash下载程序</li>
+</ol>
+<p>本来打算就用UniFlash就足够了，支持F2272， 支持第三方串口模块，但是没想到后面遇到了几个坑，最后把上面几个工具都下载并尝试了一番..但是最后还是用UniFlash成功了。</p>
+<p>吐槽一下其他几个工具：<br>MSP-FLASHER, 命令行中允许执行 -i TIUSB | COMn | .., 连接上串口后执行 -i COM2后程序还是会自动尝试寻找USBFET, 没有不行..</p>
+<p>MSP-GANG，打开了以后使用串口模式，永远只和COM1通信，COM2被你吃了么..</p>
+<h1 id="UniFlash"><a href="#UniFlash" class="headerlink" title="UniFlash"></a>UniFlash</h1><p>打开UniFlash界面后，发现了两个问题：</p>
+<ol>
+<li>烧写的文件用的时.txt或者.hex, CCS默认的格式时ELF(.out)</li>
+<li>ISP模式并不是只用UART就可以了，需要串口模块DTR和RTS： <div style="width:100%;margin:auto"><img src="/2022/09/12/MSP430-BSL-DEBUG/1.JPG" class=""></div>
+ 也就是DTR<--->NRST,  RTS<--->TEST</li>
+</ol>
+<p>第二个问题好办，把串口模块的DTR和RTS接出来就好，CP2102芯片是支持UART硬件流控的，第一问题，应该会有两种解决方案：用某种工具转换（TI或者第三方的）， 或者在工程中可能提供了编译链接后可以选择类似GNU下objcopy这样的功能，打开CCS寻找，还真有：<br>    <div style="width:100%;margin:auto"><img src="/2022/09/12/MSP430-BSL-DEBUG/2.JPG" class=""></div><br>    <div style="width:100%;margin:auto"><img src="/2022/09/12/MSP430-BSL-DEBUG/3.JPG" class=""></div><br>在output format中还有很多种格式选择，UniFlash也没有具体提到需要哪种具体格式的，因为没有什么时间慢慢看文档研究了，凭感觉试了两种，最后发现TI-TXT格式可行（TI全家桶么）<br>    <div style="width:100%;margin:auto"><img src="/2022/09/12/MSP430-BSL-DEBUG/4.JPG" class=""></div></p>
+<p>生成好.txt后UniFlash中配置串口和波特率，点击“Load Image”提示失败，内容大概是目标设备无响应，检查了连线，按照提示反复掉电上电都没有作用。最后还是花了点时间最后弄明白了，MSP430F2272中BSL用的串口，和片内外设中提供的UART，并不一样！<br>    F2272中用的是P1.1和P2.2<br>    <div style="width:100%;margin:auto"><img src="/2022/09/12/MSP430-BSL-DEBUG/5.JPG" class=""></div><br>    而P1.1和P2.2的具体功能是<br>    <div style="width:100%;margin:auto"><img src="/2022/09/12/MSP430-BSL-DEBUG/6.JPG" class=""></div><br>    <div style="width:100%;margin:auto"><img src="/2022/09/12/MSP430-BSL-DEBUG/7.JPG" class=""></div></p>
+<p>飞线后，仍然提示失败，但是错误内容不一样了，日志内容也明显是有通信和握手了，说明软件和芯片已经能正常通信了。最后重新掉电上电后再次尝试，提示成功！<br>    <div style="width:100%;margin:auto"><img src="/2022/09/12/MSP430-BSL-DEBUG/8.JPG" class=""></div></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>总体来说，TI BSL相比于JTAG，在节约PIN脚上优势并不显著，仍然需要：GND，NRST，TEST，BSL-Tx, BSL-Rx五个，比前面提到的JTAG少了三个引脚，而且整体易用度上也比不上STM32的ISP和PiPico的DFU，不过依然可以搭载一个外部的USB-UART桥来完成相对完整的ISP功能，避免了在作品完成后每次需要更新固件都需要拆外壳，拆设备的尴尬。</p>
 
     </div>
 
@@ -326,7 +323,7 @@
   </li>
   <li class="post-copyright-link">
       <strong>Post link: </strong>
-      <a href="https://imcbc.github.io/2022/04/10/cm33-uac/" title="ARM Cortex M33非对齐访问">https://imcbc.github.io/2022/04/10/cm33-uac/</a>
+      <a href="https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/" title="MSP430_BSL_DEBUG">https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/</a>
   </li>
   <li class="post-copyright-license">
     <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC</a> unless stating additionally.
@@ -335,23 +332,19 @@
 </div>
 
           <div class="post-tags">
-              <a href="/tags/ARM/" rel="tag"># ARM</a>
               <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag"># 嵌入式</a>
-              <a href="/tags/Cortex-M33/" rel="tag"># Cortex-M33</a>
+              <a href="/tags/%E8%B0%83%E8%AF%95/" rel="tag"># 调试</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2022/04/09/airprobe/" rel="prev" title="AirProbe">
-                  <i class="fa fa-chevron-left"></i> AirProbe
+                <a href="/2022/04/15/openhab-serial/" rel="prev" title="自定义OpenHab串口设备">
+                  <i class="fa fa-chevron-left"></i> 自定义OpenHab串口设备
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2022/04/12/arm-dwt/" rel="next" title="ARM Cortex-M33数据断点和TRAP功能">
-                  ARM Cortex-M33数据断点和TRAP功能 <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
     </footer>
