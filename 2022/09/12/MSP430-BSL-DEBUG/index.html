@@ -22,7 +22,7 @@
 
     <meta name="description" content="目标中秋节在家，想起来MSP430系列的芯片ISP模式还没有使用过，好奇其工具链的配套的完善程度和具体的使用流程，就打算用手上的MSP430F2272来尝试一下。理想中，使用ISP的好处：  一个完整的产品不应该以JTAG为下载方式，就连自己的Pet Projects做完了以后，如果有设计或者使用外壳的情况，用JTAG下载也是极为不方便的，需要拆解外壳连接调试器。  MSP430F2272的JTA">
 <meta property="og:type" content="article">
-<meta property="og:title" content="MSP430_BSL_DEBUG">
+<meta property="og:title" content="MSP430 BSL DEBUG">
 <meta property="og:url" content="https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/index.html">
 <meta property="og:site_name" content="CBC Notes">
 <meta property="og:description" content="目标中秋节在家，想起来MSP430系列的芯片ISP模式还没有使用过，好奇其工具链的配套的完善程度和具体的使用流程，就打算用手上的MSP430F2272来尝试一下。理想中，使用ISP的好处：  一个完整的产品不应该以JTAG为下载方式，就连自己的Pet Projects做完了以后，如果有设计或者使用外壳的情况，用JTAG下载也是极为不方便的，需要拆解外壳连接调试器。  MSP430F2272的JTA">
@@ -37,7 +37,7 @@
 <meta property="og:image" content="https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/7.JPG">
 <meta property="og:image" content="https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/8.JPG">
 <meta property="article:published_time" content="2022-09-12T13:27:07.000Z">
-<meta property="article:modified_time" content="2022-09-12T14:37:07.431Z">
+<meta property="article:modified_time" content="2022-09-20T18:03:34.563Z">
 <meta property="article:author" content="IMCBC">
 <meta property="article:tag" content="嵌入式">
 <meta property="article:tag" content="调试">
@@ -49,10 +49,10 @@
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/","path":"2022/09/12/MSP430-BSL-DEBUG/","title":"MSP430_BSL_DEBUG"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/","path":"2022/09/12/MSP430-BSL-DEBUG/","title":"MSP430 BSL DEBUG"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>MSP430_BSL_DEBUG | CBC Notes</title>
+<title>MSP430 BSL DEBUG | CBC Notes</title>
   
 
 
@@ -167,7 +167,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">7</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -235,12 +235,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="MSP430_BSL_DEBUG | CBC Notes">
+      <meta itemprop="name" content="MSP430 BSL DEBUG | CBC Notes">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          MSP430_BSL_DEBUG
+          MSP430 BSL DEBUG
         </h1>
 
         <div class="post-meta-container">
@@ -250,9 +250,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
-      
 
-      <time title="Created: 2022-09-12 21:27:07 / Modified: 22:37:07" itemprop="dateCreated datePublished" datetime="2022-09-12T21:27:07+08:00">2022-09-12</time>
+      <time title="Created: 2022-09-12 21:27:07" itemprop="dateCreated datePublished" datetime="2022-09-12T21:27:07+08:00">2022-09-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-09-21 02:03:34" itemprop="dateModified" datetime="2022-09-21T02:03:34+08:00">2022-09-21</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -323,7 +329,7 @@
   </li>
   <li class="post-copyright-link">
       <strong>Post link: </strong>
-      <a href="https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/" title="MSP430_BSL_DEBUG">https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/</a>
+      <a href="https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/" title="MSP430 BSL DEBUG">https://imcbc.github.io/2022/09/12/MSP430-BSL-DEBUG/</a>
   </li>
   <li class="post-copyright-license">
     <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC</a> unless stating additionally.
@@ -345,6 +351,9 @@
                 </a>
             </div>
             <div class="post-nav-item">
+                <a href="/2022/09/21/ultra-low-power-design/" rel="next" title="超低功耗设计经验总结">
+                  超低功耗设计经验总结 <i class="fa fa-chevron-right"></i>
+                </a>
             </div>
           </div>
     </footer>
