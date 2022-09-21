@@ -33,7 +33,7 @@
 <meta property="og:image" content="https://imcbc.github.io/2022/09/21/ultra-low-power-design/4.JPG">
 <meta property="og:image" content="https://imcbc.github.io/2022/09/21/ultra-low-power-design/5.JPG">
 <meta property="article:published_time" content="2022-09-20T18:02:07.000Z">
-<meta property="article:modified_time" content="2022-09-20T19:44:06.034Z">
+<meta property="article:modified_time" content="2022-09-21T15:47:25.746Z">
 <meta property="article:author" content="IMCBC">
 <meta property="article:tag" content="嵌入式">
 <meta property="article:tag" content="PetProjects">
@@ -150,7 +150,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A2%8E%E7%A2%8E%E5%BF%B5%E7%9A%84%E7%BB%8F%E9%AA%8C"><span class="nav-number">1.</span> <span class="nav-text">碎碎念的经验</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">2.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93"><span class="nav-number">1.</span> <span class="nav-text">经验总结</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#I-%E8%AE%A4%E7%9C%9F%E8%80%83%E8%99%91%E6%A0%B8%E5%BF%83%E9%9C%80%E6%B1%82%EF%BC%8C%E5%B9%B6%E5%9B%B4%E7%BB%95%E6%A0%B8%E5%BF%83%E9%9C%80%E6%B1%82%E4%B8%A5%E8%B0%A8%E7%9A%84%E5%B1%95%E5%BC%80%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.0.0.1.</span> <span class="nav-text">I. 认真考虑核心需求，并围绕核心需求严谨的展开设计</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#II-%E5%BC%80%E5%A7%8B%E5%85%B7%E4%BD%93%E7%9A%84%E8%AE%BE%E8%AE%A1%E5%89%8D%EF%BC%8C%E5%85%B3%E9%94%AE%E7%9A%84%E7%94%B5%E8%B7%AF%E8%A6%81%E8%BF%9B%E8%A1%8C%E4%BB%BF%E7%9C%9F%EF%BC%8C%E7%A1%AE%E4%BF%9D%E6%BC%8F%E7%94%B5%E6%B5%81%EF%BC%8C%E8%B4%9F%E8%BD%BD%E7%94%B5%E6%B5%81%E5%92%8C%E7%8E%AF%E8%B7%AF%E5%93%8D%E5%BA%94%E5%9C%A8%E5%86%85%E7%9A%84%E5%90%84%E7%A7%8D%E6%8C%87%E6%A0%87%E8%BE%BE%E5%88%B0%E9%9C%80%E6%B1%82%EF%BC%8C%E5%B9%B6%E7%95%99%E6%9C%89%E8%B6%B3%E5%A4%9F%E7%9A%84%E5%86%97%E4%BD%99"><span class="nav-number">1.0.0.2.</span> <span class="nav-text">II. 开始具体的设计前，关键的电路要进行仿真，确保漏电流，负载电流和环路响应在内的各种指标达到需求，并留有足够的冗余</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#III-%E4%B8%8D%E5%90%8C%E7%9A%84%E5%8A%9F%E8%83%BD%E5%8D%95%E5%85%83%E5%85%B7%E6%9C%89%E5%8D%95%E7%8B%AC%E7%9A%84%E7%94%B5%E6%BA%90%E5%9F%9F%EF%BC%8C%E7%8B%AC%E7%AB%8B%E6%8E%A7%E5%88%B6"><span class="nav-number">1.0.0.3.</span> <span class="nav-text">III. 不同的功能单元具有单独的电源域，独立控制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#IV-%E4%B8%8D%E8%A6%81%E7%9B%B2%E7%9B%AE%E7%9B%B8%E4%BF%A1%E8%8A%AF%E7%89%87%E3%80%81%E6%A8%A1%E5%9D%97%E7%9A%84%E4%BD%BF%E8%83%BD%E5%BC%95%E8%84%9A"><span class="nav-number">1.0.0.4.</span> <span class="nav-text">IV. 不要盲目相信芯片、模块的使能引脚</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#V-%E7%94%B5%E9%98%BB-%E7%94%B5%E9%98%BB-%E7%94%B5%E9%98%BB"><span class="nav-number">1.0.0.5.</span> <span class="nav-text">V. 电阻-电阻-电阻</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#VI-%E9%99%A4%E4%BA%86%E5%BF%85%E8%A6%81%E7%9A%84%E7%A1%AC%E4%BB%B6%E8%B0%83%E8%AF%95%E6%8E%A5%E5%8F%A3%EF%BC%8C%E5%85%B3%E9%94%AE%E7%9A%84%E5%88%86%E8%B7%AF%E5%BA%94%E8%AF%A5%E8%BF%98%E9%A2%84%E7%95%99%E6%9C%89%E7%94%B5%E6%B5%81%E6%B5%8B%E8%AF%95%E7%9A%84%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.0.0.6.</span> <span class="nav-text">VI. 除了必要的硬件调试接口，关键的分路应该还预留有电流测试的接口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#VII-%E4%BA%86%E8%A7%A3%E5%88%86%E7%AB%8B%E5%85%83%E4%BB%B6"><span class="nav-number">1.0.0.7.</span> <span class="nav-text">VII. 了解分立元件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#VIII-%E6%B7%B1%E5%85%A5%E4%BA%86%E8%A7%A3%E5%BE%AE%E6%8E%A7%E5%88%B6%E5%99%A8%E7%9A%84%E4%BD%8E%E5%8A%9F%E8%80%97%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.0.0.8.</span> <span class="nav-text">VIII. 深入了解微控制器的低功耗模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#IX-IO"><span class="nav-number">1.0.0.9.</span> <span class="nav-text">IX. IO</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#X-%E6%85%8E%E9%87%8D%E4%BD%BF%E7%94%A8%E4%B8%8D%E7%86%9F%E6%82%89%E7%9A%84%E7%AC%AC%E4%B8%89%E6%96%B9%E6%A8%A1%E5%9D%97"><span class="nav-number">1.0.0.10.</span> <span class="nav-text">X. 慎重使用不熟悉的第三方模块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#XI-%E5%A5%A5%E5%8D%A1%E5%A7%86%E5%89%83%E5%88%80-%E7%AE%80%E5%8D%95%E6%89%8D%E6%98%AF%E7%A1%AC%E9%81%93%E7%90%86"><span class="nav-number">1.0.0.11.</span> <span class="nav-text">XI. 奥卡姆剃刀 - 简单才是硬道理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#XII-%E4%BC%98%E5%85%88%E8%AE%BE%E8%AE%A1%E8%BD%AF%E4%BB%B6%E6%A8%A1%E5%9E%8B%EF%BC%8C%E5%B9%B6%E5%9C%A8%E5%8F%AF%E8%83%BD%E7%9A%84%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E4%B8%8B%E9%AA%8C%E8%AF%81%E8%BD%AF%E4%BB%B6"><span class="nav-number">1.0.0.12.</span> <span class="nav-text">XII. 优先设计软件模型，并在可能的开发环境下验证软件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#XIII-%E8%BF%BD%E6%B1%82%E6%9F%90%E4%BA%9B%E6%9E%81%E8%87%B4%E7%9A%84%E5%8F%82%E6%95%B0%E6%97%B6%EF%BC%8C%E5%88%86%E4%B8%A4%E6%AD%A5%E8%AE%BE%E8%AE%A1%E5%8F%AF%E8%83%BD%E5%8F%AF%E8%83%BD%E4%BC%9A%E6%9B%B4%E8%8A%82%E7%BA%A6%E6%97%B6%E9%97%B4"><span class="nav-number">1.0.0.13.</span> <span class="nav-text">XIII. 追求某些极致的参数时，分两步设计可能可能会更节约时间</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#XIV-%E8%80%83%E8%99%91%E5%A5%BD%E9%AB%98%E4%BD%8E%E5%8A%9F%E8%80%97%E7%8A%B6%E6%80%81%E7%9A%84%E5%88%87%E6%8D%A2"><span class="nav-number">1.0.0.14.</span> <span class="nav-text">XIV. 考虑好高低功耗状态的切换</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%B1%E8%B4%A5%E7%9A%84%E7%BB%8F%E9%AA%8C"><span class="nav-number">2.</span> <span class="nav-text">失败的经验</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E7%89%88"><span class="nav-number">2.0.0.1.</span> <span class="nav-text">第一版</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E7%89%88"><span class="nav-number">2.0.0.2.</span> <span class="nav-text">第二版</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E7%89%88"><span class="nav-number">2.0.0.3.</span> <span class="nav-text">第三版</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E5%9B%9B%E7%89%88"><span class="nav-number">2.0.0.4.</span> <span class="nav-text">第四版</span></a></li></ol></li></ol></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -248,7 +248,7 @@
       <span class="post-meta-item-text">Posted on</span>
       
 
-      <time title="Created: 2022-09-21 02:02:07 / Modified: 03:44:06" itemprop="dateCreated datePublished" datetime="2022-09-21T02:02:07+08:00">2022-09-21</time>
+      <time title="Created: 2022-09-21 02:02:07 / Modified: 23:47:25" itemprop="dateCreated datePublished" datetime="2022-09-21T02:02:07+08:00">2022-09-21</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -273,80 +273,26 @@
         <p>从大学开始就断断续续的摸索超低功耗系统的设计，其中撞过很多坑，通过前几次的迭代积累的经验，外加这段时间正好闲下来，完成了一个比较满意的超低功耗传感采集节点的设计，待机电流0.1uA, 工作时包括射频系统在内最大峰值电流30mA，理论上不考虑电池的自放电下，单节CR2032电池可以让设备工作数年. 总结一下经验以便后面的设计能吸取前面的教训，少走弯路。<br>几次迭代（老的设计芯片大多吹掉重新用了）：<br>    <div style="width:70%;margin:auto"><img src="/2022/09/21/ultra-low-power-design/1.JPG" class=""></div></p>
 <span id="more"></span>
 
-<h1 id="碎碎念的经验"><a href="#碎碎念的经验" class="headerlink" title="碎碎念的经验"></a>碎碎念的经验</h1><ul>
-<li><p>动手设计前先认真核心的需求，根据特点和认真考察每个组件，并做好详细的计算和仿真<br>  第一次设计是在大学的时候，对嵌入式系统的设计和理解还很粗浅，低功耗设计更是没有认真考虑，选用了外部的模块和51内核C8051F的微控制器，并采用单节AA电池通过DC-DC boost电路升压，设计完成后发现的最大问题是：功耗太高了，再优化也很难让单节AA电池长期工作数月，时间太久了依稀记得经过最后的计算大概一节AA电池能工作一个月左右。</p>
-<ul>
-<li>这里就是没有思考低功耗系统到底该如何选择合适的微控制器，而是拿着当时熟悉的微控制器设计</li>
-<li>没有考虑电源隔离， AA电池通过Boost电路升压后提供给MCU，RF和传感器供电，而待机时RF部分并不需要一直供电</li>
-<li>Boost电路选型也出了问题，后面再提</li>
-<li>电路设计上没有考虑过对于功耗的调试，导致具体哪部分消耗了多少电流并不容易测量，需要反复的割板飞线</li>
-<li>体积控制，算是锦上添花吧，当然也可以降低PCB制造的成本</li>
-<li>系统的仿真可以避免后期再PCB调试长花费过多的时间，后续版本上加入了MOS管和BJT组成的电源管理电路，而这些电路初期工作的并不理想，设置有些情况下本身就会消耗不少电</li>
-</ul>
-</li>
-<li><p>一定要了解每一个元件的特点， 做好芯片选型</p>
-<ul>
-<li><p>有了第一次失败的经验，重新选型决定采用TI的MSP430F系列单片机， 这个MCU提供了多种低功耗模式的选择<br>  手册提供的数据：</p>
-  <div style="width:100%;margin:auto"><img src="/2022/09/21/ultra-low-power-design/2.JPG" class=""></div>
-  实际测试LPM3 （VLO->ACLK):
-  <div style="width:30%;margin:auto"><img src="/2022/09/21/ultra-low-power-design/3.JPG" class=""></div>
-  实际测试LPM4：
-  <div style="width:30%;margin:auto"><img src="/2022/09/21/ultra-low-power-design/4.JPG" class=""></div>
-</li>
-<li><p>第二次则将RF部分的第三方模块改为自己设计，并采用陶瓷天线，后来证明：</p>
-<ul>
-<li>在未充分了解RF系统的时，尽管参考了官方设计，但是仍然在信号质量上和其他厂商的模块性能差距巨大</li>
-<li>这部分差距应该主要来自于：<ul>
-<li>巴伦电路的元件选型，要充分了解电感，电容的性能参数，比如精度，规格（是否是NP0）</li>
-<li>周围电路布局</li>
-<li>不靠谱的元器件提供商，都是淘宝买的，设置晶振都给发错了，26MHz发成了25MHz</li>
-<li>天线，为了压缩体积采用了并不熟悉的陶瓷天线，而陶瓷天线的性能远不如弹簧天线</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>第一次的设计中采用了一个并不熟悉的DCDC Boost芯片，而实际使用中发现，这个芯片并不能完全达到标称负载能力，主要是响应的能力不足，也可能买到的是假芯片，在提供了2-2.5倍负载冗余的情况下，射频部分的突然工作会导致电压下降，而DCDC的输出同样要提供给微控制器 – 那么结果必然是悲剧的，触发芯片POR</p>
-</li>
-</ul>
-</li>
-<li><p>动手前考虑好软件的架构，如果有从未接触过的新模块、单片机或者其他芯片，最好先做最小系统实验，包括软件特点</p>
-<ul>
-<li>重复的重新设计硬件是低效的，所以真正推荐的做法是，如果遇到要探索某些部分极限性能的情况下，最好先设计一个更注硬件与软件调试的PCB（或者可以说针对这个产品的开发板），争取两个版本就能达到所有关键指标：<ul>
-<li>具备丰富易用的调试接口</li>
-<li>给电路修改留下足够的可能性</li>
-<li>具备合格的电源</li>
-<li>不用过于的注重体积</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>深入了解微控制器的低功耗特性和使用方法</p>
-<ul>
-<li>以MSP430单片机为例，官方虽然提供了数据LPM3&#x2F;LPM4的功耗，但真正上板时，实际测出来的功耗和手册上的差距会相当巨大，这里面包括了正确的配置芯片的频率，工作模式和GPIO，其中GPIO的配置非常重要，并不是简单的把左右的IO配置为输入、输入就可以了，需要根据具体电路调整，有些需要配置为输入，有些需要配置为输出低，而个别IO，需要在低功耗前配置为一个状态避免漏电流、灌电流，而唤醒后则需要切换到另外的状态<br>  LPM3、LPM4为例：<br>  LPM3的情况下，CPU-OFF, 所有的时钟，除了ACLK以外都将被关闭，而ACLK还可以选择外部ACLK或者内部VLO（4KHz-20KzHz, 典型值12KHz)<br>  而LPM4更为极端，CPU-OFF，所有始终都关闭，MCU只能被外部IO中断唤醒</li>
-</ul>
-<p>  如果需要MSP430定时自动唤醒，就只能采用LPM3， 而如果仅仅需要外部传感器唤醒，则可以采用LMP4</p>
-</li>
-<li><p>为了减少软件设计复杂度而采用第三方模块，将会对系统整体的低功耗设计带来挑战<br>  有了第二次的RF设计性能太差的问题，重新尝试采用第三方模块去设计，虽然RF性能上去了并且软件更为简单，但是后期再优化功耗时则更加困难，比如第三方模块采用了一个单片机，这个单片机的工作电压范围是3V-5V，如果系统考虑采用纽扣电池供电那么这将会导致需要增加DCDC-Boost电路，因为典型的CR2032电池的工作电压曲线是这样的：</p>
-  <div style="width:70%;margin:auto"><img src="/2022/09/21/ultra-low-power-design/5.JPG" class=""></div>
-  而增加的Boost电路本身就很难达到90%以上的实际转换效率，这就意味一部分能量被完全的浪费了，仅仅是因为电压的不匹配
-
-</li>
-<li><p>做好电源域的隔离和调试，可以随时切断不需要的电路部分的电源<br>  在必要的电源分支上预留开关或者条线对后期调试是很有帮助的，非常有助于设计者了解到底哪个子单元消耗了具体多少的电流，单纯的在电池总供电初预留这样的电流测试接口是不够的，遇到难以理解的异常电流增加那就继续割板子了</p>
-</li>
-<li><p>贯彻奥卡姆剃刀原则 - 如无必要、勿增实体<br>  不要增加太多无用的组件，这部分并不在核心需求中的组件反而可能干扰功耗和电路的调试，增加PCB面积和元件密度， 带来了更多的不确定型</p>
-</li>
-<li><p>软件设计之初的时候考虑睡眠-唤醒情况下的切换<br>  包括的驱动中和硬件寄存器无关的软件部分，要仔细考虑那些部分需要在唤醒后重新初始化</p>
-</li>
-</ul>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><ul>
-<li>深入分析核心需求，仿真仿真仿真！如果有条件在开发板上测试软件基本功能和性能</li>
-<li>复杂的项目，不要太过期望一遍成功，一次定型，条件允许下先设计调试板，足够的软件-硬件-功耗调试接口，甚至备用方案<ul>
-<li>搞清楚每个组件的功耗，就容易进行更具针对性的优化，比如是外部的电路需要进入低功耗还是调整电路，亦或者电流来自于微控制器，是需要调整IO状态还是内部的时钟树的配置或者那些片内外设仍然在工作。</li>
-</ul>
-</li>
-<li>硬件设计的时候要同时考虑软件的架构和流程，如何能与硬件配合达到最优</li>
-<li>对于不太了解性能和特点的第三方模块选型要慎重</li>
-</ul>
+<h1 id="经验总结"><a href="#经验总结" class="headerlink" title="经验总结"></a>经验总结</h1><h4 id="I-认真考虑核心需求，并围绕核心需求严谨的展开设计"><a href="#I-认真考虑核心需求，并围绕核心需求严谨的展开设计" class="headerlink" title="I. 认真考虑核心需求，并围绕核心需求严谨的展开设计"></a>I. 认真考虑核心需求，并围绕核心需求严谨的展开设计</h4><p>比如低功耗传感设备，那么低功耗必然为核心需求，这就需要综合的考察到底多低才能满足需要，是一节AA电池还是一节纽扣电池？更换一次电池或者充电一次到底需要工作多久？休眠与工作的时间比例以及二者功耗的差异。</p>
+<h4 id="II-开始具体的设计前，关键的电路要进行仿真，确保漏电流，负载电流和环路响应在内的各种指标达到需求，并留有足够的冗余"><a href="#II-开始具体的设计前，关键的电路要进行仿真，确保漏电流，负载电流和环路响应在内的各种指标达到需求，并留有足够的冗余" class="headerlink" title="II. 开始具体的设计前，关键的电路要进行仿真，确保漏电流，负载电流和环路响应在内的各种指标达到需求，并留有足够的冗余"></a>II. 开始具体的设计前，关键的电路要进行仿真，确保漏电流，负载电流和环路响应在内的各种指标达到需求，并留有足够的冗余</h4><p>在设计电路前能充分的了解电路的特点和对应元件参数的调节会为后期实际硬件的调试避免走很多弯路，节约大量时间。</p>
+<h4 id="III-不同的功能单元具有单独的电源域，独立控制"><a href="#III-不同的功能单元具有单独的电源域，独立控制" class="headerlink" title="III. 不同的功能单元具有单独的电源域，独立控制"></a>III. 不同的功能单元具有单独的电源域，独立控制</h4><p>一个系统中，从低功耗唤醒中并不是所有的的单元同时开始工作，比如采集数据-整理分析数据-传输数据这种模型，不同阶段可以使能不同的单元，从而降低工作时间的峰值功耗。</p>
+<h4 id="IV-不要盲目相信芯片、模块的使能引脚"><a href="#IV-不要盲目相信芯片、模块的使能引脚" class="headerlink" title="IV. 不要盲目相信芯片、模块的使能引脚"></a>IV. 不要盲目相信芯片、模块的使能引脚</h4><p>很多芯片、模块提供了使能引脚，前面提到的单独控制时，使能引脚，设置包括复位在内，并不能等同于电源控制，使能或者复位仅仅是让门电路停止翻转，而并不是关断电源或者设定到一个适合的状态从而满足最低功耗的需求。比如我们最近设计的芯片，如果是拉低复位，SoC的电流反比最低功耗睡眠的情况下大很多。这种情况下，独立的外部电源控制电路是必要的。</p>
+<h4 id="V-电阻-电阻-电阻"><a href="#V-电阻-电阻-电阻" class="headerlink" title="V. 电阻-电阻-电阻"></a>V. 电阻-电阻-电阻</h4><p>很多平常用的电路中，电阻的大小需要进行调整，比如10K上拉，如果是3.3V供电，电路导通的时候流过电阻的电流大约就是0.33mA。适当增大电阻可以减小这部分消耗的电流，但是电阻越大，对于模拟电路而言热噪声越显著，而数字电路则需要考虑更好的电磁兼容设计，微弱的感应电流就有可能导致系统的误动作。</p>
+<h4 id="VI-除了必要的硬件调试接口，关键的分路应该还预留有电流测试的接口"><a href="#VI-除了必要的硬件调试接口，关键的分路应该还预留有电流测试的接口" class="headerlink" title="VI. 除了必要的硬件调试接口，关键的分路应该还预留有电流测试的接口"></a>VI. 除了必要的硬件调试接口，关键的分路应该还预留有电流测试的接口</h4><p>总电源处的电流测试点可以让测试者了解系统的整体功耗，但是一旦在开发过程中开始尝试优化系统功耗，能够了解每个子单元的功耗会对调试提供更好的指向性，节约许多调试时间。</p>
+<h4 id="VII-了解分立元件"><a href="#VII-了解分立元件" class="headerlink" title="VII. 了解分立元件"></a>VII. 了解分立元件</h4><p>在追求极端的低功耗时，充分的了解每一个元件是大有益处的，借助可靠的元件供应商，使用具体规格的元件，例如巴伦中需要一个22nH的电感8.2pF的电容，具体到村田的LQG15HSxxx, 22nH, +-5% 420mR电感和国巨的CC0603BRNPxxxx的 8.2pF +-0.1pF 50V NP0, 尽可能的避免采购三无元件，搞不好最后连精度都无法保障</p>
+<p>另外一点是，如果做多个模块，不同的模块最好能采用相同供货商、相同型号分离元件，比如同一型号的MOSFET可能有多个厂商提供，而不同的厂商生产的此型号MOSFET在某些极限指标并不相同，我就遇到过两个批次的AO3415，最后漏电流有0.3-0.5uA的差异。</p>
+<h4 id="VIII-深入了解微控制器的低功耗模型"><a href="#VIII-深入了解微控制器的低功耗模型" class="headerlink" title="VIII. 深入了解微控制器的低功耗模型"></a>VIII. 深入了解微控制器的低功耗模型</h4><p>不同的微控制器具有不同的低功耗模型，有的SoC具备多个片内电源域，有的SoC并不是全内存保留（Memory Retention), 唤醒方式，唤醒时间皆不相同，需要根据具体情况和具体需求设计。<br>最近调试的低功耗芯片就是TI的MSP430F系列的微控制器， 这个MCU提供了多种低功耗模式的选择<br>手册提供的数据：<br>    <div style="width:100%;margin:auto"><img src="/2022/09/21/ultra-low-power-design/2.JPG" class=""></div><br>实际测试LPM3 （VLO-&gt;ACLK):<br>    <div style="width:30%;margin:auto"><img src="/2022/09/21/ultra-low-power-design/3.JPG" class=""></div><br>实际测试LPM4：<br>    <div style="width:30%;margin:auto"><img src="/2022/09/21/ultra-low-power-design/4.JPG" class=""></div><br>在MSP430中，LPM3和LPM4的使用范围又是有区别的，虽然LPM3、LPM4所有的寄存器和内存都是保留模式，但是LPM4会切断所有的时钟，只有外部中断能唤醒系统。LPM3会保留ACLK， ACLK可以来自外部低速时钟，也可以来自与内部的VLO，VLO的频率范围是4KHz-20KHz, 典型值是12KHz, 也就意味着LPM3下，MSP430可以通过内部timer自我唤醒。</p>
+<h4 id="IX-IO"><a href="#IX-IO" class="headerlink" title="IX. IO"></a>IX. IO</h4><p>正确的配置芯片的工作模式和GPIO，在超低功耗的情况下，IO的正确配置是至关重要的，工作模式下，整体功耗50mA，IO额外消耗的10uA是微不足道的，但是低功耗下，整个系统的功耗&lt;&#x3D;1uA时，IO导致的额外的10uA则是非常可观的了。而IO的配置并不是简单的把所有的IO配置为输入、输入就可以了，需要根据具体电路调整，有些需要配置为输入，有些需要配置为输出低，而个别IO，需要在低功耗状态下配置为某个状态而避免漏电流、灌电流，但唤醒后则需要切换到另外的状态</p>
+<h4 id="X-慎重使用不熟悉的第三方模块"><a href="#X-慎重使用不熟悉的第三方模块" class="headerlink" title="X. 慎重使用不熟悉的第三方模块"></a>X. 慎重使用不熟悉的第三方模块</h4><p>有时候采用第三方模块会大大简化系统和软件的设计，低功耗系统如何去集成第三方模块是需要综合考虑的，可能会简化设计，也可能会带来限制应用、工作范围。比如有些模块的工作范围是2.8V-5.5V，如果配合一节AA电池或者1节CR2032电池，那么这样的模块的使用是需要额外的升压电路的。典型的CR2032电池的放电曲线， 电池放电在2.8V以后仍然可以持续放电<br>    <div style="width:70%;margin:auto"><img src="/2022/09/21/ultra-low-power-design/5.JPG" class=""></div><br>而额外的升压电路则意味着功耗的增加和电路面积的增加</p>
+<h4 id="XI-奥卡姆剃刀-简单才是硬道理"><a href="#XI-奥卡姆剃刀-简单才是硬道理" class="headerlink" title="XI. 奥卡姆剃刀 - 简单才是硬道理"></a>XI. 奥卡姆剃刀 - 简单才是硬道理</h4><p>简单来说 - 一上来不要整那么复杂，优先实现最核心的功能并保持系统的低功耗状态，并在不断增加功能-升级优化驱动的时候关注低功耗的变化，避免在某些情况下，修改了外设而这个外设会在低功耗的情况下带来意想不到的变化。</p>
+<h4 id="XII-优先设计软件模型，并在可能的开发环境下验证软件"><a href="#XII-优先设计软件模型，并在可能的开发环境下验证软件" class="headerlink" title="XII. 优先设计软件模型，并在可能的开发环境下验证软件"></a>XII. 优先设计软件模型，并在可能的开发环境下验证软件</h4><p>在不能充分了解软件-硬件系统的情况下，很多时候会出现硬件设计完了，软件的很多地方无法适配需要更改硬件或者更改软件原有架构。一个简单的例子时，一些I2C从设备是支持clock stretching的，而如果I2C主设备不支持，这样则无法有效使用SoC的硬件I2C，此时如果软件更换采用GPIO bit-banging, 则需要考虑是否屏蔽中断，包括优先级更高的中断从而保证时许，这会带来整体软件设计的新的挑战，而在设计的早期能认识到诸如此类的问题，对于系统的整体规划和设计是大有帮助的。</p>
+<h4 id="XIII-追求某些极致的参数时，分两步设计可能可能会更节约时间"><a href="#XIII-追求某些极致的参数时，分两步设计可能可能会更节约时间" class="headerlink" title="XIII. 追求某些极致的参数时，分两步设计可能可能会更节约时间"></a>XIII. 追求某些极致的参数时，分两步设计可能可能会更节约时间</h4><p>在复杂的设计中出现意料之外的事情可以说是很难避免的，而第一版设计可以放宽某些特性，比如电路板的面积，增加更多的硬件-软件调试接口的测试点，第一个版本更加关注功能的实现，当一些就绪后，随后可以进行第二个版本减小面积，降低成本。这样即便第二部出现新的问题，也能通过和第一个版本比较从而更快的定位到问题所在</p>
+<h4 id="XIV-考虑好高低功耗状态的切换"><a href="#XIV-考虑好高低功耗状态的切换" class="headerlink" title="XIV. 考虑好高低功耗状态的切换"></a>XIV. 考虑好高低功耗状态的切换</h4><p>既然是低功耗系统，那么必然会有频繁的高低功耗状态切换，切换中，那些子系统，那些片内外设是需要保留，而另外一部分需要唤醒后恢复，切换过程中寄存器的配置，IO的配置以及软件结构体的维护都是需要考虑的。比如某些情况下，低功耗唤醒后需要进行部分初始化，这些初始化需要避开POR后初始化过的一些软件结构体和指针，在了解这些后，在最初设计驱动初始化API时就可以统一考虑。</p>
+<hr>
+<h1 id="失败的经验"><a href="#失败的经验" class="headerlink" title="失败的经验"></a>失败的经验</h1><h4 id="第一版"><a href="#第一版" class="headerlink" title="第一版"></a>第一版</h4><p>第一次设计是在大学的时候，作为一个探索小项目，在没有充分的考虑需求和实际设计指标的情况下盲目动手，结果可以说是完全失败的。最初考虑的是单节AA电池供电，一个DCDC-boost芯片负责升压供MCU、RF子系统和传感器共同使用。<br>    - 没有电源分离，单独的使能引脚无法有效切断RF子系统和传感器部分的静态电流。<br>    - 即便在提前根据手册的最大负荷预留了两倍的载荷，升压电路仍然在RF部分突然工作的电压瞬间大幅度下降从而影响稳定性。<br>    - 升压芯片本身静态电流就过大，最终导致系统休眠功耗过高<br>    - 缺少足够的调试接口和逻辑分析仪触点</p>
+<h4 id="第二版"><a href="#第二版" class="headerlink" title="第二版"></a>第二版</h4><p>尝试用自己设计RF电路来替代模块，并莫名其妙的选择了白色PCB，并更改电池为单节CR2032电池，更换主控制器为MSP430F2272, 射频电路采用陶瓷天线替换原来的弹簧天线<br>    - 白色PCB非常难以调试，覆铜和线路之间非常的不明显，难以定位<br>    - 陶瓷天线衰减太大<br>    - 巴伦部分的元件质量把控不严（淘宝买的三五产品），射频的效果大幅度打折，甚至连26MHz都发错了，把25MHz芯片标注成26MHz发了过来<br>    - 加了一个MOS管来切断RF部分电源，但这个电路是有问题的，本身漏电流就不算太小</p>
+<h4 id="第三版"><a href="#第三版" class="headerlink" title="第三版"></a>第三版</h4><p>尝试使用第三方模块，为了提高续航采用了两个CR2032串联的方式供电，增加更多的MOS管来完成电源管理和电平转换<br>    - 大开脑洞的供电方式，为了避开升压、降压导致的损耗，两个电池串联，MCU用下半个电池（2-3V）供电，而射频模块用两个电池（4-6V)供电，这种不平和的供电方式会导致其中一个电池更快的耗尽<br>    - 第三方的模块组网时众多设备组网又不小难度</p>
+<h4 id="第四版"><a href="#第四版" class="headerlink" title="第四版"></a>第四版</h4><p>更换了另一种模块，更宽的工作电压不需要两个电池串联来提供更高电压，改成并联来提高总电池容量，这个版本也是雏形都具备了。另外装备了一个与第一版不同的DCDC升压模块给其他传感器供电，型号TPS61021A， 在EN关断时静态电流大概0.4uA，这部分仍然可以继续优化。</p>
 
     </div>
 
