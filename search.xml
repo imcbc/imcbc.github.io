@@ -457,4 +457,34 @@
         <tag>PetProjects</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Raspberry Pi Pico不使用按键进入下载模式(MSD)</title>
+    <url>/2023/03/07/pipico-download-mode/</url>
+    <content><![CDATA[<p>最近发现了一个小的Pi Pico使用技巧。 Pi Pico除了使用SWD下载和调试以外，还可以通过按下BOOTSEL后上插上USB来进入下载模式，此时系统中将会枚举出一个大容量存储设备，将编译好的UF2文件拖入就可以下载了。</p>
+<p>这样的下载模式非常的简单，但是在真实应用中有个麻烦：如果一旦电路板装入设备中，装上外壳之后再进行固件更新就相对恼火了，无论时SWD接口或者时BOOTSEL按键，都不大可能会再外壳上预留出来。</p>
+<p>Pi Pico官方给了一种Picotool可以使用-f参数通过USB强制Pi Pico进入下载模式并更新固件。除了这种方法外，还有一种办法可以快速的，不通过BOOTSEL按键使Pi Pico进入下载模式。</p>
+<span id="more"></span>
+
+<p>首先需要将USB配置为stdio设备，也就是再电脑上枚举为CDC设备，在CMakeLists.txt中添加：</p>
+<blockquote>
+<p>pico_enable_stdio_usb(project_name 1)</p>
+</blockquote>
+<p>在C语言环境中执行：</p>
+<blockquote>
+<p>#include “pico&#x2F;stdlib.h”<br>#include “stdio.h”<br>stdio_init_all();</p>
+</blockquote>
+<p>在电脑上用串口助手（比如TeraTerm)打开这个枚举好的CDC设备，修改波特率为1200后Pi Pico就会自动断开，然后重新枚举为新的MSD，可以拖入UF2完成固件更新。</p>
+]]></content>
+      <categories>
+        <category>PiPico</category>
+      </categories>
+      <tags>
+        <tag>嵌入式</tag>
+        <tag>PetProjects</tag>
+        <tag>PiPico</tag>
+        <tag>Jlink</tag>
+        <tag>SWD</tag>
+        <tag>调试</tag>
+      </tags>
+  </entry>
 </search>
