@@ -487,4 +487,84 @@
         <tag>调试</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Hack一个小冰箱</title>
+    <url>/2023/03/07/hack-thermobox/</url>
+    <content><![CDATA[<p>最近买了一个半导体冷热小冰箱，使用了一阵子后发现了一些问题，最主要的就是温控的不准确。冰箱门板上带有数显数控的功能，但是经过测试发现实际内部的温度和设定的温度差别比较大，误差6-7摄氏度都是常有的。<br>    <div style="width:40%;margin:auto"><img src="/2023/03/07/hack-thermobox/0.jpg" class="" title="origin_curve"></div><br>上面的就是一天的温度曲线，设定的温度为20摄氏度，环境温度白天约15度左右，每天大概7点半左右空调会打开加热，所以才有这样的温度变化趋势，冰箱应该自动识别为制冷模式了，在达到了设定温度后，之后全程为保温模式，温度的波动也全因为外界的温度波动。这样的温控也就勉强能放点冷热饮了，所以决定尝试改造一下，让自己制作的温控替代冰箱原本的温控。</p>
+<span id="more"></span>
+
+<h1 id="拆解"><a href="#拆解" class="headerlink" title="拆解"></a>拆解</h1><p>原本的样子，正面是数显数控面板：<br>    <div style="width:55%;margin:auto"><img src="/2023/03/07/hack-thermobox/1.jpg" class="" title="front"></div><br>背面支持220V交流输入或者车载12V直流输入:<br>    <div style="width:55%;margin:auto"><img src="/2023/03/07/hack-thermobox/2.jpg" class="" title="back"></div><br>内部壳体上的螺丝表明半导体制冷片就被固定在后面：<br>    <div style="width:55%;margin:auto"><img src="/2023/03/07/hack-thermobox/3.jpg" class="" title="internal"></div><br>门与箱体之间隐藏的连接线，如果要替代原有的温控，大概率就要搞清楚这几根线的作用：<br>    <div style="width:55%;margin:auto"><img src="/2023/03/07/hack-thermobox/4.jpg" class="" title="wire"></div><br>后盖比较容易拆下，打开后露出了半导体制冷片另外一端的散热片和风扇，以及电源板和控制板：<br>    <div style="width:55%;margin:auto"><img src="/2023/03/07/hack-thermobox/5.jpg" class="" title="ctrl_board1"></div><br>细节：<br>    <div style="width:55%;margin:auto"><img src="/2023/03/07/hack-thermobox/6.jpg" class="" title="detail1"></div><br><em>吐槽一下：电源板上有关EMI的东西全部拿掉了，真是无所不用其极的降低成本啊</em><br><em>再次吐槽：背面的散热器应当要考虑稍微倾斜一下，当冰箱是制热模式时，长时期的制热会让散热片温度很低，鳍片结冰后融化的水无法有效引导走，就可能流入下方风扇的电线的接口处，如果风扇没有做任何防水处理则可能导致短路。不过看前面冰箱的温控模式，大概率它也没打算长时间工作的样子。</em></p>
+<p>拆下控制板：<br>    <div style="width:55%;margin:auto"><img src="/2023/03/07/hack-thermobox/7.jpg" class="" title="ctrl_board2"></div></p>
+<h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><p>在尝试分析之前，我的猜测是后面的控制器为主控，而前面板的显示和触摸应该是个伺服控制器完成的，把控制信息传给主控，而主控则把温度信息传给伺服控制器用于显示：<br>    <div style="width:100%;margin:auto"><img src="/2023/03/07/hack-thermobox/theory.jpg" class=""></div><br>我需要做的大概就是找一个以前的某个单片机的板子替换这个主控，破解伺服控制器通信的编码，然后通过传感器读取冰箱内温度，再根据设定温度来控制半导体制冷片具体是加热或者制冷的动作。</p>
+<p>控制板背面，通过万用表测试后知道了和前面板连接线的大概定义，分别为5V，GND，热敏电阻和一个控制信号：<br>    <div style="width:55%;margin:auto"><img src="/2023/03/07/hack-thermobox/8.jpg" class="" title="ctrl_board_back"></div><br>既然知道了背面的控制器和前面屏幕与按钮是通过一个控制信号来通信的，挂上示波器看波形：<br>    <div style="width:55%;margin:auto"><img src="/2023/03/07/hack-thermobox/9.jpg" class="" title="hook"></div><br>波形：<br>    <div style="width:55%;margin:auto"><img src="/2023/03/07/hack-thermobox/10.jpg" class="" title="wave"></div></p>
+<p>这个波形大概率应该是一个串口，那么就是单向的通信，而且通过单独断开这个信号线，发现这个信号是从屏幕面板送到后面的控制器的，接上逻辑分析仪分析信号确定为串口，波特率是9600。这个信号接上一个串口模块，在电脑上读取到信息：<br>    <div style="width:55%;margin:auto"><img src="/2023/03/07/hack-thermobox/12.jpg" class=""></div><br>    <div style="width:55%;margin:auto"><img src="/2023/03/07/hack-thermobox/13.jpg" class=""></div><br>发现传输的内容非常简单，调节面板上的温度，控制内容并不变化，也就意味着这个传输的是一个并不包含任何温度的控制信息，尝试让冰箱进入制冷、制热、关机等模式，发现了控制命令只有5种，每个包总长4字节，其基本结构为：</p>
+<blockquote>
+<p>[包头] [控制字1] [控制字2] [包尾]</p>
+</blockquote>
+<p>包头为固定的0xe7, 包尾为固定的0x7e, 而两个控制字：</p>
+<figure class="highlight plaintext"><figcaption><span>控制命令</span></figcaption><table><tr><td class="code"><pre><span class="line">关机      0x00, 0xff</span><br><span class="line">制冷准备   0x03, 0xfc</span><br><span class="line">制冷      0x04, 0xfb</span><br><span class="line">制热准备   0x01, 0xfe</span><br><span class="line">制热      0x02, 0xfd</span><br></pre></td></tr></table></figure>
+
+<p>整理一下不难发现，控制字2就是控制字1的反码，那么其实就是对应着关机(0x00)，制热主备(0x01)，制热(0x02)，制冷准备(0x03)，制冷(0x04)。<strong>然后断开这个控制信号，用串口模块发送一个5V TTL电平的命令，模仿这些命令让控制器产生相应的动作，确定了对于命令内容猜想的正确。</strong></p>
+<p>这就意味着前面猜测的系统结构是不对的，后面的控制器并不是主控制器，前面的屏幕和触摸按键的控制器才是，暂且称之为前控制器，前控制器获取用户输入的设定温度，同时获取了NTC的信号，知道当前冰箱内温度，那么它是单向的向后控制器发五种命令：关机、制冷准备、制冷、制热准备、制热。如果冰箱内温度达到设定的温度，那么它就发送停止加热&#x2F;制冷的命令，简单来说就是开关的控制方式。</p>
+<p>再来拆看前控制器看看，在密封条的背面找到了螺丝：<br>    <div style="width:55%;margin:auto"><img src="/2023/03/07/hack-thermobox/15.jpg" class=""></div><br>拆下前面板：<br>    <div style="width:55%;margin:auto"><img src="/2023/03/07/hack-thermobox/16.jpg" class=""></div><br>前控制器背面，用的是一个BYD的单片机：<br>    <div style="width:55%;margin:auto"><img src="/2023/03/07/hack-thermobox/17.jpg" class=""></div></p>
+<p>看来需要替换的是前控制器而不是后控制器，这就比较麻烦了，意味着如果这么做，除了需要读取温度，编解码通信和控制半导体制冷片外，还需要增加触摸按键，触摸按键一般是电容检测的模式，比普通的GPIO要麻烦一些，还需要接管数码管来显示温度，最麻烦的是，数码管，LED灯和按键都是有位置的要求，大概率无法使用以前做好的PCB去快速的替换，需要针对这些设备和物理位置重新设计一个PCB，这样太浪费时间了。</p>
+<h1 id="设计"><a href="#设计" class="headerlink" title="设计"></a>设计</h1><p>通过前面的分析有两个可行的方案可以选择</p>
+<h2 id="方案一"><a href="#方案一" class="headerlink" title="方案一"></a>方案一</h2><p>完整的替换前控制器，做一个PCB板，具有和前控制器一样的数码管，LED，触摸按键的布局。<br>优点：</p>
+<ul>
+<li>人机交互可以保证一模一样，使用者不可察觉</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>无法利用已有的PCB来完成这一目标</li>
+<li>重新设计一个对应功能、尺寸、布局的PCB会浪费更多的时间，不会是一个两三天可以完成的工作</li>
+</ul>
+<h2 id="方案二"><a href="#方案二" class="headerlink" title="方案二"></a>方案二</h2><p>断开前后控制器的控制信号，新加入一个”中间人“控制器，用来读取当前冰箱内温度和发送对应的控制信号<br>优点：</p>
+<ul>
+<li>可以利用现成的PCB稍作修改就能使用</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>无法获取用户的温度设定，前控制器并不将这些信息发送出来，只是发送五种动作指令</li>
+<li>由于采用另外的数字温度传感器替代并不精确的热敏电阻（不准确可能和校准与安装位置有关），而两个型号不同、位置也不相同的传感器，则会导致真实的温度（控制温度）和面板上显示的温度并不一致</li>
+<li>无法再使用前面板的人机交互</li>
+</ul>
+<p>最后还是采用方案二，不希望花太多的时间和精力，同时关于人机交互的缺失，可以通过加入无线网络来弥补，利用云端远程的设置温度，并实时监视和记录冰箱内温度。</p>
+<p>最终采用的方案如下：<br>    <div style="width:100%;margin:auto"><img src="/2023/03/07/hack-thermobox/design.jpg" class=""></div></p>
+<p>考虑和设计如下：</p>
+<ol>
+<li>“中间人”控制器选用去年制做的Pi Pico的板子，稍微改造一下外接一个数字温湿度计SHT20，一个数字温度计DS18B20</li>
+<li>这个控制器上有AMS1117用来降压，理论上可以直接12V，但是：<ul>
+<li>AMS1117理论上的最大输入电压是15V，12V已经接近理论极限</li>
+<li>冰箱自带的电源板更像是追求极致成本的产物，其12V输出未必可靠</li>
+<li>已有的AMS1117货源不可靠，其真实输入耐压和热阻不详</li>
+<li>所以综合考虑这个“中间人”控制器和显示控制电路共享5V</li>
+</ul>
+</li>
+<li>共享的5V来自于一个贴片的7805，其输入电压为12V，那么考虑7805过热的风险，经过测量原有显示触摸电路电流大概在15-20mA左右, “中间人”控制器估计电流在50mA左右，那么整体7805的电流大概在80mA以下，根据热阻的计算7805应该能够承受</li>
+<li>采用SHT20为主温度传感器，可以同时采集湿度，实时监测小冰箱内的湿度情况</li>
+<li>另外一个DS18B20为环境温度传感器，通过网上搜集的资料了解到，反复的冷热交换会对半导体制冷片的寿命带来较为显著的影响，所以为了尽量避免冷热模式切换，同时节约能源，采用一个额外的传感器监控外部环境温度，这样半导体制冷片只用工作在单模式，环境温度低于目标温度则制热，到达设定温度后保温模式下靠自然散热，当温度再次降到足够低时只用继续制热即可，制冷模式的原理亦然</li>
+<li>在原有后主控上控制散热片风扇边额外增加一个12V风扇的接口，这个风扇将会在冰箱（应该更名为温箱了）内部，对着冷热温度最集中的区域（两个半导体制冷片中间）的地方进行散热，让热量更快更均匀的扩散</li>
+<li>无线收发模块用来实时传输当前状态，和接收目标温度的设定</li>
+<li>USB口也外接出来，让USB平时工作在CDC类下，内部实现一个命令行工具，外接一个计算机也可以通过这个命令行来调整各种运行参数，目标温度和监控状态</li>
+<li>外接的USB同时也作为固件更新的接口</li>
+<li>打开看门狗，防止可能的电源或者EMI导致的故障，保障一定的故障恢复能力</li>
+</ol>
+<h1 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h1><p>改造过的Pi Pico板子：<br>    <div style="width:60%;margin:auto"><img src="/2023/03/07/hack-thermobox/18.jpg" class=""></div><br>稍作修改的原主控：<br>    <div style="width:60%;margin:auto"><img src="/2023/03/07/hack-thermobox/19.jpg" class=""></div><br>系统组装后：<br>    <div style="width:60%;margin:auto"><img src="/2023/03/07/hack-thermobox/20.jpg" class=""></div></p>
+<p>在软件的实现过程中，需要注意的是，温度的控制需要使用PID，冰箱，甚至包括半导体制冷片的工作模型，都是一个大迟滞非线性系统，简单的逻辑控制或者经验控制并能有效的控制温度。PID算法本身并不复杂，可以参考Arduino PID library和这篇<a href="http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-introduction/">文章</a>，写的很通俗易懂。</p>
+<p>PID麻烦的地方在于调参，在不清楚系统模型的基础上，PID参数的差异可能是数量级的差异。所以为了方便调参，在面提到的小命令行中加入了PID调节的相关命令，并将这些参数存储在Pi Pico内部的flash上，可以动态的调节PID的参数从而寻找最佳的参数组合，同时不用担心掉电丢失的问题。</p>
+<p>在实物上调节PID参数是费时的工作，为了加快寻找合适的PID参数范围，通过记录前面冰箱内温度的变化，把这些数据当作输入，在Jupyter上设计了一个简单的PID仿真程序，能加快寻找到PID参数的大致范围。</p>
+<p>最后将仿真得到的粗略的PID参数设置在冰箱上，得到下面的实际运行的温度变化曲线：<br>    <div style="width:60%;margin:auto"><img src="/2023/03/07/hack-thermobox/21.png" class=""></div><br>以后进一步的优化和调节PID，可以让温度变化更好的震荡在目标温度上下。</p>
+<p>项目地址：[TBD]</p>
+]]></content>
+      <categories>
+        <category>DIY</category>
+        <category>PiPico</category>
+      </categories>
+      <tags>
+        <tag>嵌入式</tag>
+        <tag>PetProjects</tag>
+        <tag>ProjectReverie</tag>
+        <tag>PiPico</tag>
+      </tags>
+  </entry>
 </search>
