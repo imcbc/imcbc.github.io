@@ -1,7 +1,6 @@
 # hexo robots.txt
 User-agent: *
 Allow: /
-Allow: /about/
 Allow: /archives/
 Allow: /categories/
 Allow: /tags/
@@ -9,10 +8,6 @@ Allow: /2022/
 Allow: /2023/
 Allow: /2024/
 
-Disallow: /assets/
-Disallow: /img/
-Disallow: /js/
-Disallow: /css/
-Disallow: /links/
+Disallow: /images/
 
-Sitemap: http://imcbc.github.io/sitemap.xml
+Sitemap: https://imcbc.github.io/sitemap.xml
