@@ -586,4 +586,56 @@
         <tag>Linux</tag>
       </tags>
   </entry>
+  <entry>
+    <title>GDB TUI多窗口</title>
+    <url>/2025/04/29/gdb-tui/</url>
+    <content><![CDATA[<p>新版本的ARM GNU工具链下的GDB已经默认支持TUI模式，不需要自己配置并重编译即可使用，<br>但是默认的TUI模式下，source&#x2F;asm&#x2F;regs窗口需要通过layout命令切换，或者默认分屏的<br>情况下是上下层级展示，单步调试时效率较低，但是可以通过TUI new-layout命令配置根据<br>个人的使用习惯配置窗口布局。</p>
+<span id="more"></span>
+
+<h2 id="启动TUI模式"><a href="#启动TUI模式" class="headerlink" title="启动TUI模式"></a>启动TUI模式</h2><p>连接上启动arm-none-eabi-gdb后，连接上GDB server, 输入命令开启TUI模式：</p>
+<blockquote>
+<p>tui enable</p>
+</blockquote>
+<p>启动后默认的布局：<br>    <div style="width:90%;margin:auto"><img src="/2025/04/29/gdb-tui/default_layout.jpg" class="" title="default layout"></div></p>
+<p>通过layout next命令切换窗口：<br>    <div style="width:90%;margin:auto"><img src="/2025/04/29/gdb-tui/default2.jpg" class="" title="multi pannel"></div></p>
+<h2 id="左右并列配置source-x2F-regs窗口"><a href="#左右并列配置source-x2F-regs窗口" class="headerlink" title="左右并列配置source&#x2F;regs窗口"></a>左右并列配置source&#x2F;regs窗口</h2><p>输入命令：</p>
+<blockquote>
+<p>tui new-layout w {-horizontal src 1 regs 1} 2 status 0 cmd 1</p>
+</blockquote>
+<p>然后输入命令：</p>
+<blockquote>
+<p>layout w</p>
+</blockquote>
+<p>切换窗口布局，得到：<br>    <div style="width:90%;margin:auto"><img src="/2025/04/29/gdb-tui/src_regs.jpg" class="" title="src-regs"></div></p>
+<h2 id="左右并列配置asm-x2F-regs窗口"><a href="#左右并列配置asm-x2F-regs窗口" class="headerlink" title="左右并列配置asm&#x2F;regs窗口"></a>左右并列配置asm&#x2F;regs窗口</h2><p>输入命令：</p>
+<blockquote>
+<p>tui new-layout w {-horizontal asm 1 regs 1} 2 status 0 cmd 1</p>
+</blockquote>
+<p>然后输入命令：</p>
+<blockquote>
+<p>layout w</p>
+</blockquote>
+<p>切换窗口布局，得到：<br>    <div style="width:90%;margin:auto"><img src="/2025/04/29/gdb-tui/asm_regs.jpg" class="" title="asm-regs"></div></p>
+<h2 id="四角排列src-x2F-asm-x2F-cmd-x2F-regs窗口"><a href="#四角排列src-x2F-asm-x2F-cmd-x2F-regs窗口" class="headerlink" title="四角排列src&#x2F;asm&#x2F;cmd&#x2F;regs窗口"></a>四角排列src&#x2F;asm&#x2F;cmd&#x2F;regs窗口</h2><p>输入命令：</p>
+<blockquote>
+<p>tui new-layout w {-horizontal asm 1 regs 1} 2 status 0 cmd 1</p>
+</blockquote>
+<p>然后输入命令：</p>
+<blockquote>
+<p>layout w</p>
+</blockquote>
+<p>切换窗口布局，得到：<br>    <div style="width:100%;margin:auto"><img src="/2025/04/29/gdb-tui/all.jpg" class="" title="all"></div></p>
+<div class="note info"><p>但是需要注意，切换layout后可能需要切换窗口大小以刷新显示</p>
+</div>
+]]></content>
+      <categories>
+        <category>Debug</category>
+      </categories>
+      <tags>
+        <tag>ARM</tag>
+        <tag>嵌入式</tag>
+        <tag>Cortex-M33</tag>
+        <tag>调试</tag>
+      </tags>
+  </entry>
 </search>
