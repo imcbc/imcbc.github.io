@@ -598,7 +598,7 @@
 </blockquote>
 <p>启动后默认的布局：<br>    <div style="width:90%;margin:auto"><img src="/2025/04/29/gdb-tui/default_layout.jpg" class="" title="default layout"></div></p>
 <p>通过layout next命令切换窗口：<br>    <div style="width:90%;margin:auto"><img src="/2025/04/29/gdb-tui/default2.jpg" class="" title="multi pannel"></div></p>
-<h2 id="左右并列配置source-x2F-regs窗口"><a href="#左右并列配置source-x2F-regs窗口" class="headerlink" title="左右并列配置source&#x2F;regs窗口"></a>左右并列配置source&#x2F;regs窗口</h2><p>输入命令：</p>
+<h2 id="左右排列source-x2F-regs窗口"><a href="#左右排列source-x2F-regs窗口" class="headerlink" title="左右排列source&#x2F;regs窗口"></a>左右排列source&#x2F;regs窗口</h2><p>输入命令：</p>
 <blockquote>
 <p>tui new-layout w {-horizontal src 1 regs 1} 2 status 0 cmd 1</p>
 </blockquote>
@@ -607,7 +607,7 @@
 <p>layout w</p>
 </blockquote>
 <p>切换窗口布局，得到：<br>    <div style="width:90%;margin:auto"><img src="/2025/04/29/gdb-tui/src_regs.jpg" class="" title="src-regs"></div></p>
-<h2 id="左右并列配置asm-x2F-regs窗口"><a href="#左右并列配置asm-x2F-regs窗口" class="headerlink" title="左右并列配置asm&#x2F;regs窗口"></a>左右并列配置asm&#x2F;regs窗口</h2><p>输入命令：</p>
+<h2 id="左右排列asm-x2F-regs窗口"><a href="#左右排列asm-x2F-regs窗口" class="headerlink" title="左右排列asm&#x2F;regs窗口"></a>左右排列asm&#x2F;regs窗口</h2><p>输入命令：</p>
 <blockquote>
 <p>tui new-layout w {-horizontal asm 1 regs 1} 2 status 0 cmd 1</p>
 </blockquote>
