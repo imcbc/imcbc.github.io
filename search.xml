@@ -618,7 +618,7 @@
 <p>切换窗口布局，得到：<br>    <div style="width:90%;margin:auto"><img src="/2025/04/29/gdb-tui/asm_regs.jpg" class="" title="asm-regs"></div></p>
 <h2 id="四角排列src-x2F-asm-x2F-cmd-x2F-regs窗口"><a href="#四角排列src-x2F-asm-x2F-cmd-x2F-regs窗口" class="headerlink" title="四角排列src&#x2F;asm&#x2F;cmd&#x2F;regs窗口"></a>四角排列src&#x2F;asm&#x2F;cmd&#x2F;regs窗口</h2><p>输入命令：</p>
 <blockquote>
-<p>tui new-layout w {-horizontal asm 1 regs 1} 2 status 0 cmd 1</p>
+<p>tui new-layout w {-horizontal src 1 asm 1} 2 status {-horizontal cmd 1 regs 1}</p>
 </blockquote>
 <p>然后输入命令：</p>
 <blockquote>
