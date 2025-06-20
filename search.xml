@@ -639,7 +639,7 @@
       </tags>
   </entry>
   <entry>
-    <title>Git Log 列表化输出</title>
+    <title>Git Log 格式化输出</title>
     <url>/2025/06/20/git-log/</url>
     <content><![CDATA[<p>默认的git log展示出的内容过于详细，如果想要浏览多个最近提交，例如一次查看最近100比提交，<br>需要不停的翻译稍显麻烦，同时git log提供了自定义输出格式的功能，可以通过–format来定制<br>git log的展示格式。</p>
 <span id="more"></span>
