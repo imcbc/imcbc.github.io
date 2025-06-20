@@ -21,33 +21,31 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"imcbc.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.11.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="最近发现了一个小的Pi Pico使用技巧。 Pi Pico除了使用SWD下载和调试以外，还可以通过按下BOOTSEL后上插上USB来进入下载模式，此时系统中将会枚举出一个大容量存储设备，将编译好的UF2文件拖入就可以下载了。 这样的下载模式非常的简单，但是在真实应用中有个麻烦：如果一旦电路板装入设备中，装上外壳之后再进行固件更新就相对恼火了，无论时SWD接口或者时BOOTSEL按键，都不大可能会再">
+    <meta name="description" content="默认的git log展示出的内容过于详细，如果想要浏览多个最近提交，例如一次查看最近100比提交，需要不停的翻译稍显麻烦，同时git log提供了自定义输出格式的功能，可以通过–format来定制git log的展示格式。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Raspberry Pi Pico不使用按键进入下载模式(MSD)">
-<meta property="og:url" content="https://imcbc.github.io/2023/03/07/pipico-download-mode/index.html">
+<meta property="og:title" content="Git Log 列表化输出">
+<meta property="og:url" content="https://imcbc.github.io/2025/06/20/git-log/index.html">
 <meta property="og:site_name" content="CBC Notes">
-<meta property="og:description" content="最近发现了一个小的Pi Pico使用技巧。 Pi Pico除了使用SWD下载和调试以外，还可以通过按下BOOTSEL后上插上USB来进入下载模式，此时系统中将会枚举出一个大容量存储设备，将编译好的UF2文件拖入就可以下载了。 这样的下载模式非常的简单，但是在真实应用中有个麻烦：如果一旦电路板装入设备中，装上外壳之后再进行固件更新就相对恼火了，无论时SWD接口或者时BOOTSEL按键，都不大可能会再">
+<meta property="og:description" content="默认的git log展示出的内容过于详细，如果想要浏览多个最近提交，例如一次查看最近100比提交，需要不停的翻译稍显麻烦，同时git log提供了自定义输出格式的功能，可以通过–format来定制git log的展示格式。">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2023-03-06T17:02:43.000Z">
-<meta property="article:modified_time" content="2023-03-07T17:26:07.424Z">
+<meta property="og:image" content="https://imcbc.github.io/2025/06/20/git-log/1.jpg">
+<meta property="article:published_time" content="2025-06-20T09:22:40.000Z">
+<meta property="article:modified_time" content="2025-06-20T10:24:35.454Z">
 <meta property="article:author" content="IMCBC">
 <meta property="article:tag" content="嵌入式">
-<meta property="article:tag" content="PetProjects">
-<meta property="article:tag" content="PiPico">
-<meta property="article:tag" content="Jlink">
-<meta property="article:tag" content="SWD">
 <meta property="article:tag" content="调试">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://imcbc.github.io/2025/06/20/git-log/1.jpg">
 
 
-<link rel="canonical" href="https://imcbc.github.io/2023/03/07/pipico-download-mode/">
+<link rel="canonical" href="https://imcbc.github.io/2025/06/20/git-log/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://imcbc.github.io/2023/03/07/pipico-download-mode/","path":"2023/03/07/pipico-download-mode/","title":"Raspberry Pi Pico不使用按键进入下载模式(MSD)"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://imcbc.github.io/2025/06/20/git-log/","path":"2025/06/20/git-log/","title":"Git Log 列表化输出"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>Raspberry Pi Pico不使用按键进入下载模式(MSD) | CBC Notes</title>
+<title>Git Log 列表化输出 | CBC Notes</title>
   
 
 
@@ -136,7 +134,7 @@
 
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           Table of Contents
@@ -149,6 +147,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E6%96%B0%E7%89%88%E6%9C%ACGit"><span class="nav-number">1.</span> <span class="nav-text">安装新版本Git</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AEbashrc%E6%88%96%E8%80%85zshrc%E8%84%9A%E6%9C%AC"><span class="nav-number">2.</span> <span class="nav-text">配置bashrc或者zshrc脚本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">使用方法</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -216,7 +215,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://imcbc.github.io/2023/03/07/pipico-download-mode/">
+    <link itemprop="mainEntityOfPage" href="https://imcbc.github.io/2025/06/20/git-log/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -229,12 +228,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="Raspberry Pi Pico不使用按键进入下载模式(MSD) | CBC Notes">
+      <meta itemprop="name" content="Git Log 列表化输出 | CBC Notes">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Raspberry Pi Pico不使用按键进入下载模式(MSD)
+          Git Log 列表化输出
         </h1>
 
         <div class="post-meta-container">
@@ -244,15 +243,9 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
+      
 
-      <time title="Created: 2023-03-07 01:02:43" itemprop="dateCreated datePublished" datetime="2023-03-07T01:02:43+08:00">2023-03-07</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2023-03-08 01:26:07" itemprop="dateModified" datetime="2023-03-08T01:26:07+08:00">2023-03-08</time>
+      <time title="Created: 2025-06-20 17:22:40 / Modified: 18:24:35" itemprop="dateCreated datePublished" datetime="2025-06-20T17:22:40+08:00">2025-06-20</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -260,7 +253,7 @@
       </span>
       <span class="post-meta-item-text">In</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/PiPico/" itemprop="url" rel="index"><span itemprop="name">PiPico</span></a>
+          <a href="/categories/Debug/" itemprop="url" rel="index"><span itemprop="name">Debug</span></a>
         </span>
     </span>
 
@@ -274,20 +267,54 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <p>最近发现了一个小的Pi Pico使用技巧。 Pi Pico除了使用SWD下载和调试以外，还可以通过按下BOOTSEL后上插上USB来进入下载模式，此时系统中将会枚举出一个大容量存储设备，将编译好的UF2文件拖入就可以下载了。</p>
-<p>这样的下载模式非常的简单，但是在真实应用中有个麻烦：如果一旦电路板装入设备中，装上外壳之后再进行固件更新就相对恼火了，无论时SWD接口或者时BOOTSEL按键，都不大可能会再外壳上预留出来。</p>
-<p>Pi Pico官方给了一种Picotool可以使用-f参数通过USB强制Pi Pico进入下载模式并更新固件。除了这种方法外，还有一种办法可以快速的，不通过BOOTSEL按键使Pi Pico进入下载模式。</p>
+        <p>默认的git log展示出的内容过于详细，如果想要浏览多个最近提交，例如一次查看最近100比提交，<br>需要不停的翻译稍显麻烦，同时git log提供了自定义输出格式的功能，可以通过–format来定制<br>git log的展示格式。</p>
 <span id="more"></span>
 
-<p>首先需要将USB配置为stdio设备，也就是再电脑上枚举为CDC设备，在CMakeLists.txt中添加：</p>
+<h2 id="安装新版本Git"><a href="#安装新版本Git" class="headerlink" title="安装新版本Git"></a>安装新版本Git</h2><p>首先更新git到较新版本，Ubuntu 20.04默认安装的git版本为较早期的2.25.1.</p>
+<p>添加git 官方PPA仓库：</p>
 <blockquote>
-<p>pico_enable_stdio_usb(project_name 1)</p>
+<p>sudo add-apt-repository ppa:git-core&#x2F;ppa</p>
 </blockquote>
-<p>在C语言环境中执行：</p>
+<p>更新并安装新的git:</p>
 <blockquote>
-<p>#include “pico&#x2F;stdlib.h”<br>#include “stdio.h”<br>stdio_init_all();</p>
+<p>sudo apt update<br>sudo apt install git</p>
 </blockquote>
-<p>在电脑上用串口助手（比如TeraTerm)打开这个枚举好的CDC设备，修改波特率为1200后Pi Pico就会自动断开，然后重新枚举为新的MSD，可以拖入UF2完成固件更新。</p>
+<p>验证：</p>
+<blockquote>
+<p>git –version</p>
+</blockquote>
+<p>输出:</p>
+<blockquote>
+<p>git version 2.49.0</p>
+</blockquote>
+<h2 id="配置bashrc或者zshrc脚本"><a href="#配置bashrc或者zshrc脚本" class="headerlink" title="配置bashrc或者zshrc脚本"></a>配置bashrc或者zshrc脚本</h2><p>参考Git 文档：<a target="_blank" rel="noopener" href="https://git-scm.com/docs/pretty-formats">https://git-scm.com/docs/pretty-formats</a></p>
+<p>添加脚本：这里将log分成四列: 日期 | 短哈希 | 作者 | 部分提交信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">lg</span></span>() &#123;</span><br><span class="line">        <span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$1</span>&quot;</span> != <span class="string">&#x27;&#x27;</span> ]; <span class="keyword">then</span></span><br><span class="line">                <span class="keyword">if</span> [[ <span class="variable">$1</span> =~ ^[0-9]+$ ]]; <span class="keyword">then</span></span><br><span class="line">                        git <span class="built_in">log</span> --pretty=format:<span class="string">&quot;%&lt;(16,trunc) %ch | %h |%&lt;(10,trunc) %al |%&lt;(85,trunc) %s&quot;</span> -n <span class="variable">$1</span> . | <span class="built_in">cat</span></span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                        git <span class="built_in">log</span> --pretty=format:<span class="string">&quot;%&lt;(16,trunc) %ch | %h |%&lt;(10,trunc) %al |%&lt;(85,trunc) %s&quot;</span> <span class="variable">$@</span> | <span class="built_in">cat</span></span><br><span class="line">                <span class="keyword">fi</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">                git <span class="built_in">log</span> --pretty=format:<span class="string">&quot;%&lt;(16,trunc) %ch | %h |%&lt;(10,trunc) %al |%&lt;(85,trunc) %s&quot;</span> -n 20 . | <span class="built_in">cat</span></span><br><span class="line">        <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>刷新脚本：</p>
+<blockquote>
+<p>source ~&#x2F;.zshrc</p>
+</blockquote>
+<h2 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h2><ol>
+<li><p>默认方法: 默认展示最近的20笔提交</p>
+<blockquote>
+<p>lg</p>
+ <div style="width:90%;margin:auto"><img src="/2025/06/20/git-log/1.jpg" class="" title="default"></div>
+</blockquote>
+</li>
+<li><p>指定特定数量的提交, 例如100条</p>
+<blockquote>
+<p>lg 100</p>
+</blockquote>
+</li>
+<li><p>搭配其他git log参数, 可搭配任意git log参数, 例如查看某个日期范围内的提交:</p>
+<blockquote>
+<p>lg –since&#x3D;”2025-05-01” –until&#x3D;”2025-05-31”</p>
+</blockquote>
+</li>
+</ol>
+<div class="note info"><p>除了使用git的参数外, 同样可以搭配管道操作使用</p>
+</div>
 
     </div>
 
@@ -305,7 +332,7 @@
   </li>
   <li class="post-copyright-link">
       <strong>Post link: </strong>
-      <a href="https://imcbc.github.io/2023/03/07/pipico-download-mode/" title="Raspberry Pi Pico不使用按键进入下载模式(MSD)">https://imcbc.github.io/2023/03/07/pipico-download-mode/</a>
+      <a href="https://imcbc.github.io/2025/06/20/git-log/" title="Git Log 列表化输出">https://imcbc.github.io/2025/06/20/git-log/</a>
   </li>
   <li class="post-copyright-license">
     <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC</a> unless stating additionally.
@@ -315,10 +342,6 @@
 
           <div class="post-tags">
               <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag"># 嵌入式</a>
-              <a href="/tags/PetProjects/" rel="tag"># PetProjects</a>
-              <a href="/tags/PiPico/" rel="tag"># PiPico</a>
-              <a href="/tags/Jlink/" rel="tag"># Jlink</a>
-              <a href="/tags/SWD/" rel="tag"># SWD</a>
               <a href="/tags/%E8%B0%83%E8%AF%95/" rel="tag"># 调试</a>
           </div>
 
@@ -326,14 +349,11 @@
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2022/09/21/ultra-low-power-design/" rel="prev" title="超低功耗设计经验总结">
-                  <i class="fa fa-chevron-left"></i> 超低功耗设计经验总结
+                <a href="/2025/04/29/gdb-tui/" rel="prev" title="GDB TUI多窗口">
+                  <i class="fa fa-chevron-left"></i> GDB TUI多窗口
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2023/03/07/hack-thermobox/" rel="next" title="Hack一个小冰箱">
-                  Hack一个小冰箱 <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
     </footer>

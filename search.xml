@@ -638,4 +638,64 @@
         <tag>调试</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Git Log 列表化输出</title>
+    <url>/2025/06/20/git-log/</url>
+    <content><![CDATA[<p>默认的git log展示出的内容过于详细，如果想要浏览多个最近提交，例如一次查看最近100比提交，<br>需要不停的翻译稍显麻烦，同时git log提供了自定义输出格式的功能，可以通过–format来定制<br>git log的展示格式。</p>
+<span id="more"></span>
+
+<h2 id="安装新版本Git"><a href="#安装新版本Git" class="headerlink" title="安装新版本Git"></a>安装新版本Git</h2><p>首先更新git到较新版本，Ubuntu 20.04默认安装的git版本为较早期的2.25.1.</p>
+<p>添加git 官方PPA仓库：</p>
+<blockquote>
+<p>sudo add-apt-repository ppa:git-core&#x2F;ppa</p>
+</blockquote>
+<p>更新并安装新的git:</p>
+<blockquote>
+<p>sudo apt update<br>sudo apt install git</p>
+</blockquote>
+<p>验证：</p>
+<blockquote>
+<p>git –version</p>
+</blockquote>
+<p>输出:</p>
+<blockquote>
+<p>git version 2.49.0</p>
+</blockquote>
+<h2 id="配置bashrc或者zshrc脚本"><a href="#配置bashrc或者zshrc脚本" class="headerlink" title="配置bashrc或者zshrc脚本"></a>配置bashrc或者zshrc脚本</h2><p>参考Git 文档：<a href="https://git-scm.com/docs/pretty-formats">https://git-scm.com/docs/pretty-formats</a></p>
+<p>添加脚本：这里将log分成四列: 日期 | 短哈希 | 作者 | 部分提交信息</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="title">lg</span></span>() &#123;</span><br><span class="line">        <span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$1</span>&quot;</span> != <span class="string">&#x27;&#x27;</span> ]; <span class="keyword">then</span></span><br><span class="line">                <span class="keyword">if</span> [[ <span class="variable">$1</span> =~ ^[0-9]+$ ]]; <span class="keyword">then</span></span><br><span class="line">                        git <span class="built_in">log</span> --pretty=format:<span class="string">&quot;%&lt;(16,trunc) %ch | %h |%&lt;(10,trunc) %al |%&lt;(85,trunc) %s&quot;</span> -n <span class="variable">$1</span> . | <span class="built_in">cat</span></span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                        git <span class="built_in">log</span> --pretty=format:<span class="string">&quot;%&lt;(16,trunc) %ch | %h |%&lt;(10,trunc) %al |%&lt;(85,trunc) %s&quot;</span> <span class="variable">$@</span> | <span class="built_in">cat</span></span><br><span class="line">                <span class="keyword">fi</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">                git <span class="built_in">log</span> --pretty=format:<span class="string">&quot;%&lt;(16,trunc) %ch | %h |%&lt;(10,trunc) %al |%&lt;(85,trunc) %s&quot;</span> -n 20 . | <span class="built_in">cat</span></span><br><span class="line">        <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>刷新脚本：</p>
+<blockquote>
+<p>source ~&#x2F;.zshrc</p>
+</blockquote>
+<h2 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h2><ol>
+<li><p>默认方法: 默认展示最近的20笔提交</p>
+<blockquote>
+<p>lg</p>
+ <div style="width:90%;margin:auto"><img src="/2025/06/20/git-log/1.jpg" class="" title="default"></div>
+</blockquote>
+</li>
+<li><p>指定特定数量的提交, 例如100条</p>
+<blockquote>
+<p>lg 100</p>
+</blockquote>
+</li>
+<li><p>搭配其他git log参数, 可搭配任意git log参数, 例如查看某个日期范围内的提交:</p>
+<blockquote>
+<p>lg –since&#x3D;”2025-05-01” –until&#x3D;”2025-05-31”</p>
+</blockquote>
+</li>
+</ol>
+<div class="note info"><p>除了使用git的参数外, 同样可以搭配管道操作使用</p>
+</div>
+]]></content>
+      <categories>
+        <category>Debug</category>
+      </categories>
+      <tags>
+        <tag>嵌入式</tag>
+        <tag>调试</tag>
+      </tags>
+  </entry>
 </search>
